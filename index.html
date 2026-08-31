@@ -521,24 +521,35 @@ loadSettings();renderAll();route();
 
   function syncLoaderLogo(){
     try{
-      const settings = JSON.parse(localStorage.getItem(typeof SETTINGS_KEY !== "undefined" ? SETTINGS_KEY : "designops_settings_v1") || "{}");
+      const key = typeof SETTINGS_KEY !== "undefined" ? SETTINGS_KEY : "designops_settings_v1";
+      const settings = JSON.parse(localStorage.getItem(key) || "{}");
       if(settings.logo){
         const img=document.getElementById("loaderLogo");
         const fallback=document.getElementById("loaderLogoFallback");
-        if(img && fallback){img.src=settings.logo;img.style.display="block";fallback.style.display="none";}
+        if(img && fallback){
+          img.src=settings.logo;
+          img.style.display="block";
+          fallback.style.display="none";
+        }
       }
     }catch(e){}
   }
+
+  function hideLoader(){
+    const loader=document.getElementById("appLoader");
+    if(loader) loader.classList.add("hide");
+  }
+
   syncLoaderLogo();
 
+  // Always finish the intro after exactly 5 seconds.
+  setTimeout(hideLoader, 5000);
+
+  // If the page loads earlier, finish at 5 seconds rather than waiting indefinitely.
   window.addEventListener("load", function(){
-    setTimeout(function(){
-      const loader=document.getElementById("appLoader");
-      if(loader) loader.classList.add("hide");
-    }, 650);
+    setTimeout(hideLoader, 5000);
   });
 })();
-
 </script>
 
 <footer class="app-footer">

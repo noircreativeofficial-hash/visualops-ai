@@ -29,7 +29,7 @@ button,input,textarea,select{font:inherit}.app-shell{min-height:100vh;display:fl
 
 
 /* V6 — entrance animation + loading screen + footer */
-.app-loader{position:fixed;inset:0;z-index:99999;background:#0a0a0a;color:#fff;display:grid;place-items:center;transition:opacity .55s ease,visibility .55s ease}.app-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.loader-core{text-align:center;display:grid;justify-items:center;gap:10px;animation:loaderIn .65s cubic-bezier(.2,.8,.2,1) both}.loader-logo{width:58px;height:58px;border-radius:14px;background:var(--accent,#B7D66A);color:#111;display:grid;place-items:center;font-size:23px;font-weight:900;overflow:hidden}.loader-logo img{width:100%;height:100%;object-fit:contain;display:none}.loader-brand{font-size:20px;font-weight:900;letter-spacing:-.5px}.loader-brand span{color:var(--accent,#B7D66A)}.loader-core small{font-size:8px;letter-spacing:1.7px;color:#777;font-weight:800}.loader-line{width:150px;height:2px;background:#222;border-radius:4px;overflow:hidden;margin-top:2px}.loader-line i{display:block;width:42%;height:100%;background:var(--accent,#B7D66A);animation:loaderProgress 1.05s ease-in-out infinite}.app-footer{margin-left:285px;padding:16px 40px 22px;border-top:1px solid var(--line,#e4e4df);display:flex;justify-content:space-between;gap:12px;color:#8b8b86;font-size:10px;letter-spacing:.1px}.app-footer span:last-child{opacity:.7}.page.active{animation:pageIn .38s ease both}.sidebar{animation:sidebarIn .48s cubic-bezier(.2,.8,.2,1) both}.topbar{animation:topbarIn .55s ease both}@keyframes loaderIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}@keyframes loaderProgress{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes sidebarIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}@keyframes topbarIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}@media(max-width:800px){.app-footer{margin-left:0;padding:14px 20px;flex-direction:column}.loader-brand{font-size:18px}}@media(prefers-reduced-motion:reduce){.app-loader,.loader-core,.loader-line i,.page.active,.sidebar,.topbar{animation:none!important;transition:none!important}}
+.app-loader{position:fixed;inset:0;z-index:99999;background:#0a0a0a;color:#fff;display:grid;place-items:center;opacity:1;visibility:visible;pointer-events:auto;animation:appLoaderAutoHide 5s ease forwards}.app-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.loader-core{text-align:center;display:grid;justify-items:center;gap:10px;animation:loaderIn .65s cubic-bezier(.2,.8,.2,1) both}.loader-logo{width:58px;height:58px;border-radius:14px;background:var(--accent,#B7D66A);color:#111;display:grid;place-items:center;font-size:23px;font-weight:900;overflow:hidden}.loader-logo img{width:100%;height:100%;object-fit:contain;display:none}.loader-brand{font-size:20px;font-weight:900;letter-spacing:-.5px}.loader-brand span{color:var(--accent,#B7D66A)}.loader-core small{font-size:8px;letter-spacing:1.7px;color:#777;font-weight:800}.loader-line{width:150px;height:2px;background:#222;border-radius:4px;overflow:hidden;margin-top:2px}.loader-line i{display:block;width:42%;height:100%;background:var(--accent,#B7D66A);animation:loaderProgress 1.05s ease-in-out infinite}.app-footer{margin-left:285px;padding:16px 40px 22px;border-top:1px solid var(--line,#e4e4df);display:flex;justify-content:space-between;gap:12px;color:#8b8b86;font-size:10px;letter-spacing:.1px}.app-footer span:last-child{opacity:.7}.page.active{animation:pageIn .38s ease both}.sidebar{animation:sidebarIn .48s cubic-bezier(.2,.8,.2,1) both}.topbar{animation:topbarIn .55s ease both}@keyframes appLoaderAutoHide{0%,88%{opacity:1;visibility:visible;pointer-events:auto}100%{opacity:0;visibility:hidden;pointer-events:none}}@keyframes loaderIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}@keyframes loaderProgress{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes sidebarIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}@keyframes topbarIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}@media(max-width:800px){.app-footer{margin-left:0;padding:14px 20px;flex-direction:column}.loader-brand{font-size:18px}}@media(prefers-reduced-motion:reduce){.app-loader,.loader-core,.loader-line i,.page.active,.sidebar,.topbar{animation:none!important;transition:none!important}}
 
 </style>
 </head>
@@ -519,36 +519,21 @@ loadSettings();renderAll();route();
   const year = document.getElementById("copyrightYear");
   if(year) year.textContent = new Date().getFullYear();
 
-  function syncLoaderLogo(){
-    try{
-      const key = typeof SETTINGS_KEY !== "undefined" ? SETTINGS_KEY : "designops_settings_v1";
-      const settings = JSON.parse(localStorage.getItem(key) || "{}");
-      if(settings.logo){
-        const img=document.getElementById("loaderLogo");
-        const fallback=document.getElementById("loaderLogoFallback");
-        if(img && fallback){
-          img.src=settings.logo;
-          img.style.display="block";
-          fallback.style.display="none";
-        }
+  // Optional logo preview. Loading dismissal is handled by CSS,
+  // so it cannot get stuck if another script fails.
+  try{
+    const key = typeof SETTINGS_KEY !== "undefined" ? SETTINGS_KEY : "designops_settings_v1";
+    const settings = JSON.parse(localStorage.getItem(key) || "{}");
+    if(settings.logo){
+      const img=document.getElementById("loaderLogo");
+      const fallback=document.getElementById("loaderLogoFallback");
+      if(img && fallback){
+        img.src=settings.logo;
+        img.style.display="block";
+        fallback.style.display="none";
       }
-    }catch(e){}
-  }
-
-  function hideLoader(){
-    const loader=document.getElementById("appLoader");
-    if(loader) loader.classList.add("hide");
-  }
-
-  syncLoaderLogo();
-
-  // Always finish the intro after exactly 5 seconds.
-  setTimeout(hideLoader, 5000);
-
-  // If the page loads earlier, finish at 5 seconds rather than waiting indefinitely.
-  window.addEventListener("load", function(){
-    setTimeout(hideLoader, 5000);
-  });
+    }
+  }catch(e){}
 })();
 </script>
 

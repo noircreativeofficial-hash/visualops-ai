@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DesignOps AI — AI-powered design request management system.">
+  <title>DesignOps AI — Request Center</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">D</div>
+        <div>
+          <strong>Design<span>Ops</span></strong>
+          <small>AI Request Center</small>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="#dashboard" class="nav-link active" data-page="dashboard">⌂ <span>Dashboard</span></a>
+        <a href="#requests" class="nav-link" data-page="requests">▤ <span>Request Queue</span></a>
+        <a href="#new-request" class="nav-link" data-page="new-request">＋ <span>New Request</span></a>
+        <a href="#analytics" class="nav-link" data-page="analytics">◒ <span>Analytics</span></a>
+        <a href="#settings" class="nav-link" data-page="settings">⚙ <span>Settings</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <div><b>System online</b><small>Prototype v1.0</small></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><span>DesignOps</span> AI</div>
+        <div class="top-actions">
+          <button class="icon-btn" id="notificationBtn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
+          <div class="avatar">N</div>
+        </div>
+      </header>
+
+      <section id="dashboard" class="page active-page">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">CREATIVE OPERATIONS</span>
+            <h1>Design Request Center</h1>
+            <p>Kelola seluruh request desain dalam satu tempat.</p>
+          </div>
+          <button class="primary-btn" data-go="new-request">＋ New Request</button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><span>Open Requests</span><strong id="openCount">0</strong><small>Request aktif</small></article>
+          <article class="stat-card"><span>Urgent</span><strong id="urgentCount">0</strong><small>Perlu perhatian</small></article>
+          <article class="stat-card"><span>Waiting Approval</span><strong id="approvalCount">0</strong><small>Menunggu review</small></article>
+          <article class="stat-card"><span>Completed</span><strong id="completedCount">0</strong><small>Bulan ini</small></article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div><h2>Priority Queue</h2><p>Request yang paling membutuhkan perhatian.</p></div>
+              <button class="text-btn" data-go="requests">View all →</button>
+            </div>
+            <div id="priorityQueue" class="request-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading"><div><h2>AI Workload Insight</h2><p>Analisis sederhana berdasarkan queue saat ini.</p></div></div>
+            <div class="workload">
+              <div class="workload-number"><strong id="workloadValue">0%</strong><span>estimated workload</span></div>
+              <div class="progress"><i id="workloadBar"></i></div>
+            </div>
+            <div class="ai-box">
+              <span class="ai-label">✦ AI RECOMMENDATION</span>
+              <p id="aiInsight">Belum ada data.</p>
+            </div>
+            <div class="workflow-mini">
+              <span>New</span><i>→</i><span>Production</span><i>→</i><span>Review</span><i>→</i><span>Done</span>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="requests" class="page">
+        <div class="page-heading">
+          <div><span class="eyebrow">WORK QUEUE</span><h1>Request Queue</h1><p>Semua request desain yang masuk.</p></div>
+          <button class="primary-btn" data-go="new-request">＋ New Request</button>
+        </div>
+        <section class="panel">
+          <div class="toolbar">
+            <div class="filters" id="queueFilters">
+              <button class="filter active" data-filter="all">All</button>
+              <button class="filter" data-filter="urgent">Urgent</button>
+              <button class="filter" data-filter="social_media">Social Media</button>
+              <button class="filter" data-filter="print">Print</button>
+              <button class="filter" data-filter="packaging">Packaging</button>
+            </div>
+            <input class="search" id="searchInput" placeholder="Search request..." type="search">
+          </div>
+          <div id="fullQueue" class="request-list"></div>
+        </section>
+      </section>
+
+      <section id="new-request" class="page">
+        <div class="page-heading"><div><span class="eyebrow">INTAKE</span><h1>New Design Request</h1><p>Masukkan brief. AI akan membantu mengklasifikasikan request.</p></div></div>
+        <section class="panel form-panel">
+          <form id="requestForm">
+            <div class="form-grid">
+              <label>Request title<input id="title" required placeholder="Contoh: Promo September Instagram Feed"></label>
+              <label>Requester<input id="requester" placeholder="Marketing / Product / Other"></label>
+              <label>Deadline<input id="deadline" type="date" required></label>
+              <label>Channel / Format<select id="channel">
+                <option value="social_media">Instagram Feed</option>
+                <option value="social_media">Instagram Story</option>
+                <option value="print">Print</option>
+                <option value="packaging">Packaging</option>
+                <option value="presentation">Presentation</option>
+                <option value="other">Other</option>
+              </select></label>
+              <label class="full">Brief<textarea id="brief" required placeholder="Jelaskan tujuan, campaign, produk, pesan utama, ukuran, CTA, referensi, dan informasi penting lainnya."></textarea></label>
+              <label class="full">Reference / Attachment<input id="attachment" type="file"></label>
+            </div>
+            <div class="ai-analysis" id="aiAnalysis">
+              <div><span class="ai-label">✦ AI ANALYSIS</span><p>Isi brief lalu klik Analyze with AI.</p></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="secondary-btn" data-go="dashboard">Cancel</button>
+              <button type="button" class="secondary-btn" id="analyzeBtn">Analyze with AI</button>
+              <button type="submit" class="primary-btn">Add to Queue</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section id="analytics" class="page">
+        <div class="page-heading"><div><span class="eyebrow">INSIGHTS</span><h1>Analytics</h1><p>Ringkasan workload dan request.</p></div></div>
+        <div class="stats-grid">
+          <article class="stat-card"><span>Total Requests</span><strong id="totalRequests">0</strong><small>Semua data prototype</small></article>
+          <article class="stat-card"><span>Avg. AI Priority</span><strong id="avgPriority">0</strong><small>Skor 0–100</small></article>
+          <article class="stat-card"><span>Social Media</span><strong id="socialCount">0</strong><small>Request</small></article>
+          <article class="stat-card"><span>Packaging</span><strong id="packagingCount">0</strong><small>Request</small></article>
+        </div>
+        <section class="panel"><div class="panel-heading"><div><h2>Category Distribution</h2><p>Distribusi request berdasarkan kategori.</p></div></div><div id="categoryBars"></div></section>
+      </section>
+
+      <section id="settings" class="page">
+        <div class="page-heading"><div><span class="eyebrow">CONFIGURATION</span><h1>Settings</h1><p>Prototype pengaturan brand dan workflow.</p></div></div>
+        <div class="settings-grid">
+          <section class="panel">
+            <h2>Brand</h2>
+            <label>Brand name<input id="brandName" value="DesignOps AI"></label>
+            <label>Primary color<input id="primaryColor" type="color" value="#111111"></label>
+            <label>Accent color<input id="accentColor" type="color" value="#B7D66A"></label>
+            <button class="primary-btn" id="saveSettings">Save Appearance</button>
+          </section>
+          <section class="panel">
+            <h2>Urgency Rules</h2>
+            <div class="rule"><span><b>Critical</b><small>Deadline ≤ 24 jam</small></span><em>P0</em></div>
+            <div class="rule"><span><b>High</b><small>Deadline 1–3 hari</small></span><em>P1</em></div>
+            <div class="rule"><span><b>Normal</b><small>Deadline 4–7 hari</small></span><em>P2</em></div>
+            <div class="rule"><span><b>Low</b><small>Deadline &gt; 7 hari</small></span><em>P3</em></div>
+          </section>
+        </div>
+        <div class="notice">Prototype note: Settings tersimpan di browser ini melalui localStorage. Pada versi production, setting akan disimpan di database.</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="requestModal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="modal-close" id="closeModal">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -271,6 +271,15 @@ button,input,textarea,select{font:inherit}.app-shell{min-height:100vh;display:fl
   </div>
 
   <script>
+const SUPABASE_URL = "https://tdxtuanbgfmvzlbxjtxy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_O-_PpidZdPj1_Seww2cWeA_sO0bGiLH";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+console.log("VisualOps AI → Supabase client initialized");
 const STORAGE_KEY="designops_requests_v1";
 const SETTINGS_KEY="designops_settings_v1";
 

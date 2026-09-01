@@ -480,6 +480,35 @@ function renderCategorySettings(){
  const cats=getCategories();
  $("categorySettings").innerHTML=cats.map((c,i)=>`<span class="category-chip">${esc(c)}<button type="button" data-cat-index="${i}" aria-label="Remove ${esc(c)}">×</button></span>`).join("");
 }
+    function syncChannelOptions(){
+  const select=$("channel");
+  if(!select)return;
+
+  const current=select.value;
+  const cats=getCategories();
+
+  const values={
+    "Social Media":"social_media",
+    "Digital Ads":"digital_ads",
+    "Packaging":"packaging",
+    "Print":"print",
+    "Branding":"branding",
+    "Photography":"photography",
+    "Video":"video",
+    "Illustration":"illustration",
+    "Presentation":"presentation",
+    "Other":"other"
+  };
+
+  select.innerHTML=cats.map(category=>{
+    const value=values[category]||category.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+    return `<option value="${esc(value)}">${esc(category)}</option>`;
+  }).join("");
+
+  if([...select.options].some(o=>o.value===current)){
+    select.value=current;
+  }
+}
 $("logoInput").addEventListener("change",e=>{
  const file=e.target.files?.[0];if(!file)return;
  const reader=new FileReader();

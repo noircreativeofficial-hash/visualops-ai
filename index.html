@@ -3,710 +3,2437 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DesignOps AI — AI-powered design request management system.">
+
+  <meta
+    name="description"
+    content="VisualOps AI — Design Request Center"
+  >
+
   <title>VisualOps AI — Request Center</title>
-  
+
+  <link rel="icon" href="logo.svg">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
-:root{
-  --primary:#111111;--accent:#B7D66A;--bg:#F5F5F2;--surface:#FFFFFF;--line:#E4E4DE;
-  --text:#171717;--muted:#77766F;--danger:#C83B3B;--warning:#9A6800;--blue:#3569A8;--sidebar-bg:#111111;--sidebar-active:#242424;--sidebar-text:#969696;--sidebar-hover:#1c1c1c;--sidebar-width:245px;--sidebar-bg-image:none;
-}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,textarea,select{font:inherit}.app-shell{min-height:100vh;display:flex}.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);background:var(--sidebar-bg);color:#fff;padding:25px 18px;background-image:var(--sidebar-bg-image);background-size:cover;background-position:center;display:flex;flex-direction:column;z-index:5}
-.brand{display:flex;gap:11px;align-items:center;margin-bottom:38px}.brand-mark{width:38px;height:38px;border-radius:9px;background:var(--accent);color:#111;display:grid;place-items:center;font-weight:900;overflow:hidden;flex:0 0 38px}.brand-logo-shell{position:relative}.brand-logo-shell img{width:100%;height:100%;object-fit:contain;display:none}.brand-logo-shell.has-logo{background:transparent}.brand-logo-shell.has-logo img{display:block}.brand-logo-shell.has-logo span{display:none}.brand strong{display:block;font-size:18px}.brand strong span{color:var(--accent)}.brand small{display:block;color:#858585;font-size:10px;margin-top:2px}
-.nav{display:grid;gap:5px}.nav-link{color:var(--sidebar-text);text-decoration:none;padding:11px 12px;border-radius:8px;font-size:14px;display:flex;gap:10px;align-items:center}.nav-link:hover{background:var(--sidebar-hover);color:#fff}.nav-link.active{background:var(--sidebar-active);color:#fff}.nav-link.active{box-shadow:inset 3px 0 0 var(--accent)}
-.sidebar-footer{margin-top:auto;border-top:1px solid #2d2d2d;padding-top:15px;display:flex;gap:9px;align-items:center;font-size:11px}.sidebar-footer small{display:block;color:#777;margin-top:2px}.status-dot{width:8px;height:8px;border-radius:50%;background:#7FC55A}
-.main{margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));padding:0 34px 50px}.topbar{height:66px;display:flex;justify-content:flex-end;align-items:center}.top-actions{display:flex;align-items:center;gap:14px}.icon-btn{border:0;background:transparent;font-size:21px;cursor:pointer;position:relative}.notification-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;position:absolute;right:3px;top:3px}.avatar{width:32px;height:32px;background:#222;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700}.mobile-brand{display:none}
-.page{display:none;max-width:1400px;margin:auto}.page.active-page{display:block}.page-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:18px 0 25px}.eyebrow{font-size:10px;letter-spacing:1.5px;font-weight:800;color:var(--muted)}h1{font-size:30px;line-height:1.1;margin:6px 0}h2{font-size:16px;margin:0}p{margin:6px 0;color:var(--muted);font-size:13px}
-.primary-btn,.secondary-btn,.text-btn,.filter{border:0;cursor:pointer;border-radius:8px;padding:11px 15px;font-weight:700;font-size:13px}.primary-btn{background:var(--primary);color:#fff}.primary-btn:hover{opacity:.88}.secondary-btn{background:#fff;border:1px solid var(--line);color:var(--text)}.text-btn{background:transparent;padding:5px;color:#555}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:17px}.stat-card span{font-size:12px;color:var(--muted)}.stat-card strong{display:block;font-size:27px;margin:5px 0}.stat-card small{color:#999;font-size:11px}
-.content-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:17px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:20px;margin-bottom:17px}.panel-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:14px}
-.request-list{display:grid;gap:9px}.request-item{border:1px solid var(--line);border-radius:9px;padding:14px;cursor:pointer;transition:.15s}.request-item:hover{border-color:#aaa;transform:translateY(-1px)}.request-top,.request-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.request-title{font-weight:750;font-size:13px}.request-meta{color:var(--muted);font-size:11px;margin:6px 0}.tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:20px;font-size:10px;font-weight:800}.tag.urgent{background:#FFE1E1;color:#A40000}.tag.high{background:#FFF0D0;color:#8A5900}.tag.normal{background:#E8F0FA;color:#315D93}.tag.low{background:#E7F2DF;color:#3E6C26}.tag.status{background:#F0F0ED;color:#555}.workload{margin:15px 0 22px}.workload-number{display:flex;justify-content:space-between;align-items:end}.workload-number strong{font-size:32px}.workload-number span{font-size:11px;color:#999}.progress{height:8px;background:#EBEBE7;border-radius:8px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--accent);width:0;transition:.3s}.ai-box{background:#F4F8EA;border:1px solid #D8E3BC;border-radius:9px;padding:14px}.ai-label{font-size:9px;font-weight:900;letter-spacing:1px;color:#58752A}.ai-box p{color:#4D5541;line-height:1.55}.workflow-mini{display:flex;align-items:center;gap:8px;margin-top:18px;flex-wrap:wrap;font-size:10px;color:#777}.workflow-mini i{color:#aaa}.toolbar{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:16px}.filters{display:flex;gap:6px;flex-wrap:wrap}.filter{background:#fff;border:1px solid var(--line);padding:7px 11px;font-size:11px}.filter.active{background:var(--primary);color:#fff}.search{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 11px;min-width:220px;outline:none}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}label{display:grid;gap:6px;font-size:11px;font-weight:750;color:#555}.full{grid-column:1/-1}input,textarea,select{border:1px solid var(--line);border-radius:8px;padding:11px;background:#fff;color:var(--text);outline:none}textarea{min-height:140px;resize:vertical}.ai-analysis{margin-top:18px;padding:15px;border-radius:9px;background:#F4F8EA;border:1px solid #D8E3BC}.ai-analysis p{color:#555;margin-top:7px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px}.settings-grid label{margin:15px 0}.settings-grid input[type=color]{height:42px;padding:4px}.rule{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:14px 0}.rule:last-child{border-bottom:0}.rule b{display:block;font-size:12px}.rule small{color:#999;font-size:10px}.rule em{font-style:normal;font-weight:900;font-size:12px}.notice{padding:13px 15px;border-radius:8px;background:#F0F0ED;color:#666;font-size:11px}.logo-setting{display:flex;gap:14px;align-items:center;margin:16px 0 4px}.logo-preview-wrap{width:74px;height:74px;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;background:#fafaf8;overflow:hidden}.logo-preview-wrap img{width:100%;height:100%;object-fit:contain;display:none}.brand-mark.large{width:48px;height:48px;font-size:20px}.brand-logo-shell{display:grid!important;place-items:center;overflow:hidden}.brand-logo-shell img{width:100%;height:100%;object-fit:contain;display:none}.brand-logo-shell span{display:block}.logo-actions{display:grid;gap:3px}.logo-actions small{color:#999;font-size:10px}.upload-btn{display:inline-flex!important;display:flex;align-items:center;background:var(--primary);color:#fff;padding:9px 12px;border-radius:8px;font-size:11px!important;font-weight:800;cursor:pointer}.category-chips{display:flex;gap:7px;flex-wrap:wrap}.category-chip{display:inline-flex;align-items:center;gap:6px;background:#f2f2ee;border:1px solid var(--line);border-radius:20px;padding:6px 9px;font-size:10px;font-weight:700}.category-chip button{border:0;background:transparent;color:#888;cursor:pointer;font-size:13px;padding:0}.workflow-setting{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:16px;font-size:11px;color:#555}.workflow-setting span{background:#f2f2ee;border:1px solid var(--line);padding:7px 9px;border-radius:7px;font-weight:700}.workflow-setting i{font-style:normal;color:#aaa}.sidebar-design-preview{height:105px;border-radius:10px;background:var(--sidebar-bg);background-image:var(--sidebar-bg-image);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:12px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;border:1px solid rgba(0,0,0,.08)}.range-row{display:flex;align-items:center;gap:10px}.range-row input{flex:1}.range-row output{min-width:54px;text-align:right;color:#777;font-size:11px}
-.bar-row{margin:16px 0}.bar-label{display:flex;justify-content:space-between;font-size:11px}.bar-bg{height:8px;background:#eee;border-radius:8px;margin-top:6px;overflow:hidden}.bar-bg i{display:block;height:100%;background:var(--primary)}
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{background:#fff;width:min(620px,100%);border-radius:13px;padding:24px;max-height:90vh;overflow:auto;position:relative}.modal-close{position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:25px;cursor:pointer}.modal-card h2{font-size:21px;margin:5px 0 16px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail-cell{background:#F5F5F2;border-radius:8px;padding:11px}.detail-cell small{display:block;color:#999;font-size:9px;text-transform:uppercase;letter-spacing:.6px}.detail-cell b{display:block;margin-top:4px;font-size:12px}.empty{padding:30px;text-align:center;color:#999;font-size:12px;border:1px dashed var(--line);border-radius:9px}
-@media(max-width:900px){.sidebar{width:72px;padding:20px 12px}.brand div:not(.brand-mark),.nav-link span,.sidebar-footer div:not(.status-dot){display:none}.brand{justify-content:center}.nav-link{justify-content:center}.main{margin-left:72px;width:calc(100% - 72px);padding:0 18px 40px}.stats-grid{grid-template-columns:1fr 1fr}.content-grid,.settings-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.sidebar{display:none}.main{margin:0;width:100%;padding:0 14px 30px}.topbar{height:56px}.mobile-brand{display:block;margin-right:auto;font-weight:800}.mobile-brand span{color:var(--primary)}.page-heading{align-items:flex-start;flex-direction:column}.page-heading .primary-btn{width:100%}.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.toolbar{align-items:stretch;flex-direction:column}.search{width:100%}.form-actions{flex-wrap:wrap}.form-actions>*{flex:1}.detail-grid{grid-template-columns:1fr}}
+    :root{
+      --primary:#111111;
+      --accent:#B7D66A;
+      --bg:#F5F5F2;
+      --surface:#FFFFFF;
+      --line:#E4E4DE;
+      --text:#171717;
+      --muted:#77766F;
 
+      --sidebar-bg:#111111;
+      --sidebar-active:#242424;
+      --sidebar-text:#969696;
+      --sidebar-hover:#1C1C1C;
 
-/* V6 — entrance animation + loading screen + footer */
-.loader-skip{position:absolute;top:22px;right:26px;z-index:100001;width:42px;height:42px;border:1px solid #555;border-radius:50%;background:#171717;color:#fff;font-size:25px;line-height:38px;text-align:center;cursor:pointer;opacity:1;visibility:visible;display:grid;place-items:center;transition:all .2s ease}.loader-skip:hover{color:#fff;border-color:#999;background:#222;transform:rotate(90deg) scale(1.05)}@keyframes skipFadeIn{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}.app-loader{position:fixed;inset:0;z-index:99999;background:#0a0a0a;color:#fff;display:grid;place-items:center;opacity:1;visibility:visible;pointer-events:auto;animation:appLoaderAutoHide 5s linear forwards}.app-loader.hide{opacity:0;visibility:hidden;pointer-events:none}.loader-core{text-align:center;display:grid;justify-items:center;gap:10px;animation:loaderIn .65s cubic-bezier(.2,.8,.2,1) both}.loader-logo{width:58px;height:58px;border-radius:14px;background:var(--accent,#B7D66A);color:#111;display:grid;place-items:center;font-size:23px;font-weight:900;overflow:hidden}.loader-logo img{width:100%;height:100%;object-fit:contain;display:none}.loader-brand{font-size:20px;font-weight:900;letter-spacing:-.5px}.loader-brand span{color:var(--accent,#B7D66A)}.loader-core small{font-size:8px;letter-spacing:1.7px;color:#777;font-weight:800}.loader-line{width:150px;height:2px;background:#222;border-radius:4px;overflow:hidden;margin-top:2px}.loader-line i{display:block;width:42%;height:100%;background:var(--accent,#B7D66A);animation:loaderProgress 1.05s ease-in-out infinite}.app-footer{margin-left:285px;padding:16px 40px 22px;border-top:1px solid var(--line,#e4e4df);display:flex;justify-content:space-between;gap:12px;color:#8b8b86;font-size:10px;letter-spacing:.1px}.app-footer span:last-child{opacity:.7}.page.active{animation:pageIn .38s ease both}.sidebar{animation:sidebarIn .48s cubic-bezier(.2,.8,.2,1) both}.topbar{animation:topbarIn .55s ease both}@keyframes appLoaderAutoHide{0%,88%{opacity:1;visibility:visible;pointer-events:auto}100%{opacity:0;visibility:hidden;pointer-events:none}}@keyframes loaderIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}@keyframes loaderProgress{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes sidebarIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}@keyframes topbarIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}@media(max-width:800px){.app-footer{margin-left:0;padding:14px 20px;flex-direction:column}.loader-brand{font-size:18px}}@media(prefers-reduced-motion:reduce){.app-loader,.loader-core,.loader-line i,.page.active,.sidebar,.topbar{animation:none!important;transition:none!important}}
+      --sidebar-width:245px;
+    }
 
-</style>
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select{
+      font:inherit;
+    }
+
+    /* =========================
+       LOADING SCREEN
+    ========================= */
+
+    .app-loader{
+      position:fixed;
+      inset:0;
+      z-index:99999;
+
+      background:#080808;
+      color:white;
+
+      display:grid;
+      place-items:center;
+
+      opacity:1;
+      visibility:visible;
+
+      transition:
+        opacity .35s ease,
+        visibility .35s ease;
+    }
+
+    .app-loader.hide{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .loader-core{
+      text-align:center;
+      display:grid;
+      justify-items:center;
+      gap:10px;
+
+      animation:loaderIn .6s ease both;
+    }
+
+    .loader-logo{
+      width:64px;
+      height:64px;
+
+      border-radius:15px;
+
+      background:var(--accent);
+      color:#111;
+
+      display:grid;
+      place-items:center;
+
+      font-size:25px;
+      font-weight:900;
+
+      overflow:hidden;
+    }
+
+    .loader-logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:none;
+    }
+
+    .loader-brand{
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .loader-brand span{
+      color:var(--accent);
+    }
+
+    .loader-line{
+      width:160px;
+      height:2px;
+
+      background:#292929;
+      overflow:hidden;
+      border-radius:5px;
+    }
+
+    .loader-line i{
+      display:block;
+      width:45%;
+      height:100%;
+
+      background:var(--accent);
+
+      animation:loaderProgress 1s ease-in-out infinite;
+    }
+
+    .loader-core small{
+      color:#777;
+      font-size:8px;
+      letter-spacing:1.6px;
+      font-weight:800;
+    }
+
+    .loader-skip{
+      position:absolute;
+      top:24px;
+      right:28px;
+
+      width:42px;
+      height:42px;
+
+      border:1px solid #555;
+      border-radius:50%;
+
+      background:#151515;
+      color:white;
+
+      font-size:25px;
+      cursor:pointer;
+
+      display:grid;
+      place-items:center;
+    }
+
+    .loader-skip:hover{
+      background:#222;
+      border-color:#888;
+      transform:rotate(90deg);
+    }
+
+    @keyframes loaderIn{
+      from{
+        opacity:0;
+        transform:translateY(10px) scale(.97);
+      }
+
+      to{
+        opacity:1;
+        transform:none;
+      }
+    }
+
+    @keyframes loaderProgress{
+      from{
+        transform:translateX(-120%);
+      }
+
+      to{
+        transform:translateX(360%);
+      }
+    }
+
+    /* =========================
+       APP
+    ========================= */
+
+    .app-shell{
+      min-height:100vh;
+      display:flex;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .sidebar{
+      position:fixed;
+      inset:0 auto 0 0;
+
+      width:var(--sidebar-width);
+
+      background:var(--sidebar-bg);
+
+      color:white;
+
+      padding:25px 18px;
+
+      display:flex;
+      flex-direction:column;
+
+      z-index:10;
+
+      background-image:var(--sidebar-bg-image, none);
+      background-size:cover;
+      background-position:center;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+
+      margin-bottom:38px;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+
+      border-radius:10px;
+
+      background:var(--accent);
+      color:#111;
+
+      display:grid;
+      place-items:center;
+
+      font-weight:900;
+
+      overflow:hidden;
+      flex-shrink:0;
+    }
+
+    .brand-mark img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:none;
+    }
+
+    .brand strong{
+      display:block;
+      font-size:18px;
+      color:white;
+    }
+
+    .brand strong span{
+      color:var(--accent);
+    }
+
+    .brand small{
+      display:block;
+
+      color:#858585;
+
+      font-size:10px;
+
+      margin-top:2px;
+    }
+
+    .nav{
+      display:grid;
+      gap:5px;
+    }
+
+    .nav-link{
+      color:var(--sidebar-text);
+
+      text-decoration:none;
+
+      padding:11px 12px;
+
+      border-radius:8px;
+
+      font-size:14px;
+
+      display:flex;
+      align-items:center;
+      gap:10px;
+
+      transition:.15s;
+    }
+
+    .nav-link:hover{
+      background:var(--sidebar-hover);
+      color:white;
+    }
+
+    .nav-link.active{
+      background:var(--sidebar-active);
+      color:white;
+
+      box-shadow:
+        inset 3px 0 0 var(--accent);
+    }
+
+    .sidebar-footer{
+      margin-top:auto;
+
+      border-top:1px solid #2d2d2d;
+
+      padding-top:15px;
+
+      display:flex;
+      align-items:center;
+      gap:9px;
+
+      font-size:11px;
+    }
+
+    .sidebar-footer small{
+      display:block;
+      color:#777;
+      margin-top:2px;
+    }
+
+    .status-dot{
+      width:8px;
+      height:8px;
+
+      border-radius:50%;
+
+      background:#7FC55A;
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main{
+      margin-left:var(--sidebar-width);
+
+      width:calc(100% - var(--sidebar-width));
+
+      padding:0 34px 40px;
+    }
+
+    .topbar{
+      height:66px;
+
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .icon-btn{
+      border:0;
+      background:transparent;
+
+      font-size:21px;
+
+      cursor:pointer;
+    }
+
+    .avatar{
+      width:34px;
+      height:34px;
+
+      border-radius:50%;
+
+      background:#222;
+      color:white;
+
+      display:grid;
+      place-items:center;
+
+      font-size:12px;
+      font-weight:700;
+    }
+
+    /* =========================
+       PAGES
+    ========================= */
+
+    .page{
+      display:none;
+
+      max-width:1400px;
+
+      margin:auto;
+    }
+
+    .page.active-page{
+      display:block;
+
+      animation:pageIn .3s ease;
+    }
+
+    @keyframes pageIn{
+      from{
+        opacity:0;
+        transform:translateY(7px);
+      }
+
+      to{
+        opacity:1;
+        transform:none;
+      }
+    }
+
+    .page-heading{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+
+      gap:20px;
+
+      margin:18px 0 25px;
+    }
+
+    .eyebrow{
+      font-size:10px;
+
+      letter-spacing:1.5px;
+
+      font-weight:800;
+
+      color:var(--muted);
+    }
+
+    h1{
+      font-size:30px;
+      line-height:1.1;
+
+      margin:6px 0;
+    }
+
+    h2{
+      font-size:16px;
+      margin:0;
+    }
+
+    p{
+      margin:6px 0;
+
+      color:var(--muted);
+
+      font-size:13px;
+    }
+
+    /* =========================
+       BUTTON
+    ========================= */
+
+    .primary-btn,
+    .secondary-btn,
+    .text-btn,
+    .filter{
+      border:0;
+
+      cursor:pointer;
+
+      border-radius:8px;
+
+      padding:11px 15px;
+
+      font-weight:700;
+
+      font-size:13px;
+    }
+
+    .primary-btn{
+      background:var(--primary);
+      color:white;
+    }
+
+    .primary-btn:hover{
+      opacity:.88;
+    }
+
+    .secondary-btn{
+      background:white;
+
+      border:1px solid var(--line);
+
+      color:var(--text);
+    }
+
+    .text-btn{
+      background:transparent;
+      color:#555;
+    }
+
+    /* =========================
+       DASHBOARD
+    ========================= */
+
+    .stats-grid{
+      display:grid;
+
+      grid-template-columns:
+        repeat(4,1fr);
+
+      gap:14px;
+
+      margin-bottom:18px;
+    }
+
+    .stat-card{
+      background:white;
+
+      border:1px solid var(--line);
+
+      border-radius:11px;
+
+      padding:17px;
+    }
+
+    .stat-card span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .stat-card strong{
+      display:block;
+
+      font-size:27px;
+
+      margin:5px 0;
+    }
+
+    .stat-card small{
+      color:#999;
+      font-size:11px;
+    }
+
+    .content-grid{
+      display:grid;
+
+      grid-template-columns:
+        1.35fr .85fr;
+
+      gap:17px;
+    }
+
+    .panel{
+      background:white;
+
+      border:1px solid var(--line);
+
+      border-radius:11px;
+
+      padding:20px;
+
+      margin-bottom:17px;
+    }
+
+    .panel-heading{
+      display:flex;
+
+      justify-content:space-between;
+
+      gap:15px;
+
+      align-items:flex-start;
+
+      margin-bottom:14px;
+    }
+
+    .request-list{
+      display:grid;
+      gap:9px;
+    }
+
+    .request-item{
+      border:1px solid var(--line);
+
+      border-radius:9px;
+
+      padding:14px;
+
+      cursor:pointer;
+
+      transition:.15s;
+    }
+
+    .request-item:hover{
+      border-color:#aaa;
+      transform:translateY(-1px);
+    }
+
+    .request-top,
+    .request-bottom{
+      display:flex;
+
+      justify-content:space-between;
+
+      align-items:center;
+
+      gap:10px;
+    }
+
+    .request-title{
+      font-weight:750;
+      font-size:13px;
+    }
+
+    .request-meta{
+      color:var(--muted);
+
+      font-size:11px;
+
+      margin:6px 0;
+    }
+
+    .tag{
+      display:inline-flex;
+
+      align-items:center;
+
+      padding:4px 8px;
+
+      border-radius:20px;
+
+      font-size:10px;
+
+      font-weight:800;
+    }
+
+    .tag.urgent{
+      background:#FFE1E1;
+      color:#A40000;
+    }
+
+    .tag.high{
+      background:#FFF0D0;
+      color:#8A5900;
+    }
+
+    .tag.normal{
+      background:#E8F0FA;
+      color:#315D93;
+    }
+
+    .tag.low{
+      background:#E7F2DF;
+      color:#3E6C26;
+    }
+
+    .tag.status{
+      background:#F0F0ED;
+      color:#555;
+    }
+
+    .workload{
+      margin:15px 0 22px;
+    }
+
+    .workload-number{
+      display:flex;
+
+      justify-content:space-between;
+
+      align-items:end;
+    }
+
+    .workload-number strong{
+      font-size:32px;
+    }
+
+    .workload-number span{
+      font-size:11px;
+      color:#999;
+    }
+
+    .progress{
+      height:8px;
+
+      background:#EBEBE7;
+
+      border-radius:8px;
+
+      overflow:hidden;
+
+      margin-top:9px;
+    }
+
+    .progress i{
+      display:block;
+
+      height:100%;
+
+      background:var(--accent);
+
+      width:0;
+
+      transition:.3s;
+    }
+
+    .ai-box,
+    .ai-analysis{
+      background:#F4F8EA;
+
+      border:1px solid #D8E3BC;
+
+      border-radius:9px;
+
+      padding:14px;
+    }
+
+    .ai-label{
+      font-size:9px;
+
+      font-weight:900;
+
+      letter-spacing:1px;
+
+      color:#58752A;
+    }
+
+    .ai-box p,
+    .ai-analysis p{
+      color:#4D5541;
+
+      line-height:1.55;
+    }
+
+    .workflow-mini{
+      display:flex;
+
+      align-items:center;
+
+      gap:8px;
+
+      margin-top:18px;
+
+      flex-wrap:wrap;
+
+      font-size:10px;
+
+      color:#777;
+    }
+
+    .workflow-mini i{
+      color:#aaa;
+    }
+
+    /* =========================
+       REQUEST PAGE
+    ========================= */
+
+    .toolbar{
+      display:flex;
+
+      justify-content:space-between;
+
+      gap:15px;
+
+      align-items:center;
+
+      margin-bottom:16px;
+    }
+
+    .filters{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .filter{
+      background:white;
+
+      border:1px solid var(--line);
+
+      padding:7px 11px;
+
+      font-size:11px;
+    }
+
+    .filter.active{
+      background:var(--primary);
+      color:white;
+    }
+
+    .search{
+      border:1px solid var(--line);
+
+      background:white;
+
+      border-radius:8px;
+
+      padding:9px 11px;
+
+      min-width:220px;
+
+      outline:none;
+    }
+
+    /* =========================
+       FORM
+    ========================= */
+
+    .form-grid{
+      display:grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap:15px;
+    }
+
+    label{
+      display:grid;
+
+      gap:6px;
+
+      font-size:11px;
+
+      font-weight:750;
+
+      color:#555;
+    }
+
+    .full{
+      grid-column:1/-1;
+    }
+
+    input,
+    textarea,
+    select{
+      border:1px solid var(--line);
+
+      border-radius:8px;
+
+      padding:11px;
+
+      background:white;
+
+      color:var(--text);
+
+      outline:none;
+    }
+
+    textarea{
+      min-height:140px;
+      resize:vertical;
+    }
+
+    .form-actions{
+      display:flex;
+
+      justify-content:flex-end;
+
+      gap:8px;
+
+      margin-top:18px;
+    }
+
+    /* =========================
+       ANALYTICS
+    ========================= */
+
+    .bar-row{
+      margin:16px 0;
+    }
+
+    .bar-label{
+      display:flex;
+      justify-content:space-between;
+
+      font-size:11px;
+    }
+
+    .bar-bg{
+      height:8px;
+
+      background:#eee;
+
+      border-radius:8px;
+
+      margin-top:6px;
+
+      overflow:hidden;
+    }
+
+    .bar-bg i{
+      display:block;
+
+      height:100%;
+
+      background:var(--primary);
+    }
+
+    /* =========================
+       SETTINGS
+    ========================= */
+
+    .settings-grid{
+      display:grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap:17px;
+    }
+
+    .settings-grid label{
+      margin:15px 0;
+    }
+
+    input[type="color"]{
+      height:42px;
+      padding:4px;
+    }
+
+    .logo-setting{
+      display:flex;
+
+      align-items:center;
+
+      gap:14px;
+
+      margin:16px 0;
+    }
+
+    .logo-preview{
+      width:74px;
+      height:74px;
+
+      border:1px dashed var(--line);
+
+      border-radius:12px;
+
+      display:grid;
+      place-items:center;
+
+      background:#fafaf8;
+
+      overflow:hidden;
+    }
+
+    .logo-preview img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+
+    .logo-preview span{
+      font-size:24px;
+      font-weight:900;
+    }
+
+    .upload-btn{
+      display:inline-flex;
+
+      background:var(--primary);
+
+      color:white;
+
+      padding:9px 12px;
+
+      border-radius:8px;
+
+      font-size:11px;
+
+      font-weight:800;
+
+      cursor:pointer;
+    }
+
+    .sidebar-preview{
+      height:105px;
+
+      border-radius:10px;
+
+      background:var(--sidebar-bg);
+
+      background-image:var(--sidebar-bg-image,none);
+
+      background-size:cover;
+
+      background-position:center;
+
+      display:flex;
+
+      align-items:flex-end;
+
+      padding:12px;
+
+      color:white;
+
+      font-size:11px;
+
+      font-weight:800;
+
+      border:1px solid rgba(0,0,0,.08);
+    }
+
+    .range-row{
+      display:flex;
+
+      align-items:center;
+
+      gap:10px;
+    }
+
+    .range-row input{
+      flex:1;
+    }
+
+    .range-row output{
+      min-width:55px;
+
+      text-align:right;
+
+      color:#777;
+
+      font-size:11px;
+    }
+
+    .rule{
+      display:flex;
+
+      justify-content:space-between;
+
+      align-items:center;
+
+      border-bottom:1px solid var(--line);
+
+      padding:14px 0;
+    }
+
+    .rule:last-child{
+      border-bottom:0;
+    }
+
+    .rule b{
+      display:block;
+      font-size:12px;
+    }
+
+    .rule small{
+      color:#999;
+      font-size:10px;
+    }
+
+    .rule em{
+      font-style:normal;
+
+      font-weight:900;
+
+      font-size:12px;
+    }
+
+    /* =========================
+       MODAL
+    ========================= */
+
+    .modal{
+      display:none;
+
+      position:fixed;
+
+      inset:0;
+
+      background:#0008;
+
+      z-index:100;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:20px;
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-card{
+      background:white;
+
+      width:min(620px,100%);
+
+      border-radius:13px;
+
+      padding:24px;
+
+      max-height:90vh;
+
+      overflow:auto;
+
+      position:relative;
+    }
+
+    .modal-close{
+      position:absolute;
+
+      right:14px;
+
+      top:10px;
+
+      border:0;
+
+      background:transparent;
+
+      font-size:25px;
+
+      cursor:pointer;
+    }
+
+    .detail-grid{
+      display:grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap:10px;
+    }
+
+    .detail-cell{
+      background:#F5F5F2;
+
+      border-radius:8px;
+
+      padding:11px;
+    }
+
+    .detail-cell small{
+      display:block;
+
+      color:#999;
+
+      font-size:9px;
+
+      text-transform:uppercase;
+    }
+
+    .detail-cell b{
+      display:block;
+
+      margin-top:4px;
+
+      font-size:12px;
+    }
+
+    .empty{
+      padding:30px;
+
+      text-align:center;
+
+      color:#999;
+
+      font-size:12px;
+
+      border:1px dashed var(--line);
+
+      border-radius:9px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .app-footer{
+      margin-left:var(--sidebar-width);
+
+      padding:16px 40px 22px;
+
+      border-top:1px solid var(--line);
+
+      display:flex;
+
+      justify-content:space-between;
+
+      gap:12px;
+
+      color:#8b8b86;
+
+      font-size:10px;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media(max-width:900px){
+
+      .sidebar{
+        width:72px;
+        padding:20px 12px;
+      }
+
+      .brand > div:not(.brand-mark),
+      .nav-link span,
+      .sidebar-footer > div:not(.status-dot){
+        display:none;
+      }
+
+      .brand{
+        justify-content:center;
+      }
+
+      .nav-link{
+        justify-content:center;
+      }
+
+      .main{
+        margin-left:72px;
+
+        width:calc(100% - 72px);
+
+        padding:0 18px 40px;
+      }
+
+      .app-footer{
+        margin-left:72px;
+      }
+
+      .stats-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .content-grid,
+      .settings-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:600px){
+
+      .sidebar{
+        display:none;
+      }
+
+      .main{
+        margin:0;
+        width:100%;
+        padding:0 14px 30px;
+      }
+
+      .app-footer{
+        margin-left:0;
+
+        padding:14px 20px;
+
+        flex-direction:column;
+      }
+
+      .page-heading{
+        align-items:flex-start;
+
+        flex-direction:column;
+      }
+
+      .page-heading .primary-btn{
+        width:100%;
+      }
+
+      .stats-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .full{
+        grid-column:auto;
+      }
+
+      .toolbar{
+        align-items:stretch;
+
+        flex-direction:column;
+      }
+
+      .search{
+        width:100%;
+      }
+
+      .form-actions{
+        flex-wrap:wrap;
+      }
+
+      .form-actions>*{
+        flex:1;
+      }
+
+      .detail-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div id="appLoader" class="app-loader" aria-label="Loading DesignOps AI">
-  <button id="loaderSkip" class="loader-skip" type="button" aria-label="Skip loading">×</button>
-  <div class="loader-core">
-    <div class="loader-logo"><span id="loaderLogoFallback">D</span><img id="loaderLogo" alt=""></div>
-    <div class="loader-brand">Design<span>Ops</span> AI</div>
-    <div class="loader-line"><i></i></div>
-    <small>INITIALIZING CREATIVE OPERATIONS</small>
-  </div>
-</div>
 
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark brand-logo-shell">
-          <img id="sidebarLogo" alt="Application logo">
-          <span id="sidebarLogoFallback">D</span>
-        </div>
-        <div>
-          <strong>Design<span>Ops</span></strong>
-          <small>AI Request Center</small>
-        </div>
+  <!-- LOADING SCREEN -->
+
+  <div id="appLoader" class="app-loader">
+
+    <button
+      id="loaderSkip"
+      class="loader-skip"
+      type="button"
+      aria-label="Skip loading"
+    >
+      ×
+    </button>
+
+    <div class="loader-core">
+
+      <div class="loader-logo">
+        <span id="loaderLogoFallback">D</span>
+        <img id="loaderLogo" alt="Logo">
       </div>
 
-      <nav class="nav">
-        <a href="#dashboard" class="nav-link active" data-page="dashboard">⌂ <span>Dashboard</span></a>
-        <a href="#requests" class="nav-link" data-page="requests">▤ <span>Request Queue</span></a>
-        <a href="#new-request" class="nav-link" data-page="new-request">＋ <span>New Request</span></a>
-        <a href="#analytics" class="nav-link" data-page="analytics">◒ <span>Analytics</span></a>
-        <a href="#settings" class="nav-link" data-page="settings">⚙ <span>Settings</span></a>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="status-dot"></div>
-        <div><b>System online</b><small>Prototype v1.0</small></div>
+      <div class="loader-brand">
+        Visual<span>Ops</span> AI
       </div>
-    </aside>
 
-    <main class="main">
-      <header class="topbar">
-        <div class="mobile-brand"><span>DesignOps</span> AI</div>
-        <div class="top-actions">
-          <button class="icon-btn" id="notificationBtn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
-          <div class="avatar">N</div>
-        </div>
-      </header>
+      <div class="loader-line">
+        <i></i>
+      </div>
 
-      <section id="dashboard" class="page active-page">
-        <div class="page-heading">
-          <div>
-            <span class="eyebrow">CREATIVE OPERATIONS</span>
-            <h1>Design Request Center</h1>
-            <p>Kelola seluruh request desain dalam satu tempat.</p>
-          </div>
-          <button class="primary-btn" data-go="new-request">＋ New Request</button>
-        </div>
+      <small>
+        INITIALIZING CREATIVE OPERATIONS
+      </small>
 
-        <div class="stats-grid">
-          <article class="stat-card"><span>Open Requests</span><strong id="openCount">0</strong><small>Request aktif</small></article>
-          <article class="stat-card"><span>Urgent</span><strong id="urgentCount">0</strong><small>Perlu perhatian</small></article>
-          <article class="stat-card"><span>Waiting Approval</span><strong id="approvalCount">0</strong><small>Menunggu review</small></article>
-          <article class="stat-card"><span>Completed</span><strong id="completedCount">0</strong><small>Bulan ini</small></article>
-        </div>
-
-        <div class="content-grid">
-          <section class="panel">
-            <div class="panel-heading">
-              <div><h2>Priority Queue</h2><p>Request yang paling membutuhkan perhatian.</p></div>
-              <button class="text-btn" data-go="requests">View all →</button>
-            </div>
-            <div id="priorityQueue" class="request-list"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-heading"><div><h2>AI Workload Insight</h2><p>Analisis sederhana berdasarkan queue saat ini.</p></div></div>
-            <div class="workload">
-              <div class="workload-number"><strong id="workloadValue">0%</strong><span>estimated workload</span></div>
-              <div class="progress"><i id="workloadBar"></i></div>
-            </div>
-            <div class="ai-box">
-              <span class="ai-label">✦ AI RECOMMENDATION</span>
-              <p id="aiInsight">Belum ada data.</p>
-            </div>
-            <div class="workflow-mini">
-              <span>New</span><i>→</i><span>Production</span><i>→</i><span>Review</span><i>→</i><span>Done</span>
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <section id="requests" class="page">
-        <div class="page-heading">
-          <div><span class="eyebrow">WORK QUEUE</span><h1>Request Queue</h1><p>Semua request desain yang masuk.</p></div>
-          <button class="primary-btn" data-go="new-request">＋ New Request</button>
-        </div>
-        <section class="panel">
-          <div class="toolbar">
-            <div class="filters" id="queueFilters">
-              <button class="filter active" data-filter="all">All</button>
-              <button class="filter" data-filter="urgent">Urgent</button>
-              <button class="filter" data-filter="social_media">Social Media</button>
-              <button class="filter" data-filter="print">Print</button>
-              <button class="filter" data-filter="packaging">Packaging</button>
-            </div>
-            <input class="search" id="searchInput" placeholder="Search request..." type="search">
-          </div>
-          <div id="fullQueue" class="request-list"></div>
-        </section>
-      </section>
-
-      <section id="new-request" class="page">
-        <div class="page-heading"><div><span class="eyebrow">INTAKE</span><h1>New Design Request</h1><p>Masukkan brief. AI akan membantu mengklasifikasikan request.</p></div></div>
-        <section class="panel form-panel">
-          <form id="requestForm">
-            <div class="form-grid">
-              <label>Request title<input id="title" required placeholder="Contoh: Promo September Instagram Feed"></label>
-              <label>Requester<input id="requester" placeholder="Marketing / Product / Other"></label>
-              <label>Deadline<input id="deadline" type="date" required></label>
-              <label>Channel / Format<select id="channel">
-                <option value="social_media">Instagram Feed</option>
-                <option value="social_media">Instagram Story</option>
-                <option value="print">Print</option>
-                <option value="packaging">Packaging</option>
-                <option value="presentation">Presentation</option>
-                <option value="other">Other</option>
-              </select></label>
-              <label class="full">Brief<textarea id="brief" required placeholder="Jelaskan tujuan, campaign, produk, pesan utama, ukuran, CTA, referensi, dan informasi penting lainnya."></textarea></label>
-              <label class="full">Reference / Attachment<input id="attachment" type="file"></label>
-            </div>
-            <div class="ai-analysis" id="aiAnalysis">
-              <div><span class="ai-label">✦ AI ANALYSIS</span><p>Isi brief lalu klik Analyze with AI.</p></div>
-            </div>
-            <div class="form-actions">
-              <button type="button" class="secondary-btn" data-go="dashboard">Cancel</button>
-              <button type="button" class="secondary-btn" id="analyzeBtn">Analyze with AI</button>
-              <button type="submit" class="primary-btn">Add to Queue</button>
-            </div>
-          </form>
-        </section>
-      </section>
-
-      <section id="analytics" class="page">
-        <div class="page-heading"><div><span class="eyebrow">INSIGHTS</span><h1>Analytics</h1><p>Ringkasan workload dan request.</p></div></div>
-        <div class="stats-grid">
-          <article class="stat-card"><span>Total Requests</span><strong id="totalRequests">0</strong><small>Semua data prototype</small></article>
-          <article class="stat-card"><span>Avg. AI Priority</span><strong id="avgPriority">0</strong><small>Skor 0–100</small></article>
-          <article class="stat-card"><span>Social Media</span><strong id="socialCount">0</strong><small>Request</small></article>
-          <article class="stat-card"><span>Packaging</span><strong id="packagingCount">0</strong><small>Request</small></article>
-        </div>
-        <section class="panel"><div class="panel-heading"><div><h2>Category Distribution</h2><p>Distribusi request berdasarkan kategori.</p></div></div><div id="categoryBars"></div></section>
-      </section>
-
-      <section id="settings" class="page">
-        <div class="page-heading"><div><span class="eyebrow">CONFIGURATION</span><h1>Settings</h1><p>Kelola identitas brand, request categories, dan aturan workflow.</p></div></div>
-
-        <div class="settings-grid">
-          <section class="panel">
-            <h2>Brand Identity</h2>
-            <div class="logo-setting">
-              <div class="logo-preview-wrap"><img id="logoPreview" alt="Logo preview"><div id="logoFallback" class="brand-mark large">D</div></div>
-              <div class="logo-actions">
-                <b>Application Logo</b>
-                <small>PNG, JPG, SVG · disimpan di browser prototype</small>
-                <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">
-                  <label class="upload-btn">Upload Logo<input id="logoInput" type="file" accept="image/png,image/jpeg,image/svg+xml" hidden></label>
-                  <button class="secondary-btn" id="removeLogo" type="button">Remove</button>
-                </div>
-              </div>
-            </div>
-            <label>Brand name<input id="brandName" value="DesignOps AI"></label>
-            <label>Tagline<input id="brandTagline" value="AI Request Center"></label>
-            <div class="form-grid" style="gap:10px">
-              <label>Primary color<input id="primaryColor" type="color" value="#111111"></label>
-              <label>Accent color<input id="accentColor" type="color" value="#B7D66A"></label>
-            </div>
-            <label>Background color<input id="backgroundColor" type="color" value="#F5F5F2"></label>
-            <button class="primary-btn" id="saveSettings">Save Appearance</button>
-          </section>
-
-          <section class="panel">
-            <h2>Urgency Rules</h2>
-            <p>Aturan awal yang digunakan prototype untuk rekomendasi prioritas.</p>
-            <div class="rule"><span><b>Critical</b><small>Deadline ≤ 24 jam</small></span><em>P0</em></div>
-            <div class="rule"><span><b>High</b><small>Deadline 1–3 hari</small></span><em>P1</em></div>
-            <div class="rule"><span><b>Normal</b><small>Deadline 4–7 hari</small></span><em>P2</em></div>
-            <div class="rule"><span><b>Low</b><small>Deadline &gt; 7 hari</small></span><em>P3</em></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-heading"><div><h2>Request Categories</h2><p>Kategori yang tersedia di form request.</p></div></div>
-            <div id="categorySettings" class="category-chips"></div>
-            <div style="display:flex;gap:8px;margin-top:12px">
-              <input id="newCategory" placeholder="Contoh: POS Material">
-              <button class="secondary-btn" id="addCategory" type="button">＋ Add</button>
-            </div>
-          </section>
-
-          <section class="panel">
-            <h2>Sidebar Appearance</h2>
-            <p>Atur tampilan sidebar tanpa menyentuh kode. Kamu juga bisa memasukkan artwork dari Photoshop sebagai background.</p>
-            <div class="sidebar-design-preview" id="sidebarDesignPreview">Sidebar Preview</div>
-            <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 15px">
-              <label class="upload-btn">Upload Sidebar Design<input id="sidebarBgInput" type="file" accept="image/png,image/jpeg,image/webp" hidden></label>
-              <button class="secondary-btn" id="removeSidebarBg" type="button">Remove Background</button>
-            </div>
-            <div class="form-grid" style="gap:10px">
-              <label>Sidebar background<input id="sidebarBgColor" type="color" value="#111111"></label>
-              <label>Active menu<input id="sidebarActiveColor" type="color" value="#242424"></label>
-              <label>Menu text<input id="sidebarTextColor" type="color" value="#969696"></label>
-              <label>Hover menu<input id="sidebarHoverColor" type="color" value="#1C1C1C"></label>
-            </div>
-            <label>Sidebar width <span class="range-row"><input id="sidebarWidth" type="range" min="210" max="360" value="245"><output id="sidebarWidthValue">245 px</output></span></label>
-            <button class="secondary-btn" id="resetSidebar" type="button">Reset Sidebar</button>
-          </section>
-
-          <section class="panel">
-            <h2>Workflow</h2>
-            <p>Status standar untuk perjalanan request.</p>
-            <div class="workflow-setting">
-              <span>New</span><i>→</i><span>Production</span><i>→</i><span>Review</span><i>→</i><span>Revision</span><i>→</i><span>Approved</span><i>→</i><span>Done</span>
-            </div>
-          </section>
-        </div>
-        <div class="notice">Prototype note: pengaturan tersimpan di browser ini melalui localStorage. Pada versi production, brand configuration akan disimpan di database sehingga berlaku untuk seluruh user.</div>
-      </section>
-    </main>
-  </div>
-
-  <div class="modal" id="requestModal" aria-hidden="true">
-    <div class="modal-card">
-      <button class="modal-close" id="closeModal">×</button>
-      <div id="modalContent"></div>
     </div>
   </div>
 
-  <script>
-const SUPABASE_URL = "https://tdxtuanbgfmvzlbxjtxy.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_O-_PpidZdPj1_Seww2cWeA_sO0bGiLH";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
-
-console.log("VisualOps AI → Supabase client initialized");
-const SETTINGS_KEY = "designops_settings_v1";
-
-let requests = [];
-
-let currentFilter = "all";
-
-    async function loadRequests() {
-  const { data, error } = await supabaseClient
-    .from("requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Gagal mengambil requests:", error);
-    alert("Gagal mengambil data request dari server.");
-    return;
-  }
-
-  requests = data || [];
-
-  renderAll();
-}
-
-function daysUntil(date){return Math.ceil((new Date(date+"T23:59:59")-new Date())/86400000)}
-function urgencyFor(date){
- const d=daysUntil(date);
- if(d<=1)return ["urgent",95];
- if(d<=3)return ["high",82];
- if(d<=7)return ["normal",68];
- return ["low",45];
-}
-function categoryFor(channel){
- const known={social_media:"Social Media",digital_ads:"Digital Ads",packaging:"Packaging",print:"Print",branding:"Branding",photography:"Photography",video:"Video",illustration:"Illustration",presentation:"Presentation",other:"Other"};
- return known[channel] || getCategories().find(c=>c.toLowerCase().replace(/[^a-z0-9]+/g,"_")===channel) || "Other";
-}
-function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function formatDate(d){if(!d||d==="TBD")return "TBD";return new Date(d+"T00:00:00").toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"})}
-
-function itemHTML(r){
- return `<article class="request-item" data-id="${r.id}">
-  <div class="request-top"><span class="request-title">${esc(r.title)}</span><span class="tag ${r.urgency}">${r.urgency.toUpperCase()}</span></div>
-  <div class="request-meta">${esc(r.category)} · Deadline ${formatDate(r.deadline)} · ${esc(r.requester||"Unknown")}</div>
-  <div class="request-bottom"><span class="tag status">${esc(r.status)}</span><span class="request-meta">AI Priority ${r.priority}/100</span></div>
- </article>`;
-}
-function bindItems(){document.querySelectorAll(".request-item").forEach(x=>x.addEventListener("click",()=>openDetail(Number(x.dataset.id))))}
-
-function renderDashboard(){
- const open=requests.filter(r=>!["Done","Approved"].includes(r.status)).length;
- const urgent=requests.filter(r=>r.urgency==="urgent").length;
- const approval=requests.filter(r=>r.status==="Waiting Approval").length;
- const completed=requests.filter(r=>r.status==="Done"||r.status==="Approved").length;
- $("openCount").textContent=open;$("urgentCount").textContent=urgent;$("approvalCount").textContent=approval;$("completedCount").textContent=completed;
- const priority=[...requests].filter(r=>r.status!=="Done").sort((a,b)=>b.priority-a.priority).slice(0,5);
- $("priorityQueue").innerHTML=priority.length?priority.map(itemHTML).join(""):`<div class="empty">Belum ada request aktif.</div>`;
- bindItems();
- const workload=Math.min(100,Math.round(requests.filter(r=>r.status!=="Done").reduce((s,r)=>s+r.priority,0)/Math.max(1,requests.length)));
- $("workloadValue").textContent=workload+"%";$("workloadBar").style.width=workload+"%";
- $("aiInsight").textContent=urgent?`${urgent} request berada pada prioritas urgent. Kerjakan request dengan skor tertinggi terlebih dahulu.`:"Queue relatif aman. Fokus pada request dengan deadline terdekat.";
-}
-function renderQueue(){
- let list=requests.filter(r=>{
-   const filter=currentFilter==="all"||r.urgency===currentFilter||r.type===currentFilter;
-   const q=($("searchInput")?.value||"").toLowerCase();
-   return filter&&(!q||r.title.toLowerCase().includes(q)||r.category.toLowerCase().includes(q)||r.requester.toLowerCase().includes(q));
- }).sort((a,b)=>b.priority-a.priority);
- $("fullQueue").innerHTML=list.length?list.map(itemHTML).join(""):`<div class="empty">Tidak ada request yang cocok.</div>`;
- bindItems();
-}
-function renderAnalytics(){
- $("totalRequests").textContent=requests.length;
- $("avgPriority").textContent=Math.round(requests.reduce((s,r)=>s+r.priority,0)/Math.max(1,requests.length));
- $("socialCount").textContent=requests.filter(r=>r.type==="social_media").length;
- $("packagingCount").textContent=requests.filter(r=>r.type==="packaging").length;
- const cats={};requests.forEach(r=>cats[r.category]=(cats[r.category]||0)+1);
- const max=Math.max(1,...Object.values(cats));
- $("categoryBars").innerHTML=Object.entries(cats).map(([name,count])=>`<div class="bar-row"><div class="bar-label"><span>${esc(name)}</span><b>${count}</b></div><div class="bar-bg"><i style="width:${count/max*100}%"></i></div></div>`).join("");
-}
-function openDetail(id){
- const r=requests.find(x=>x.id===id);if(!r)return;
- $("modalContent").innerHTML=`<span class="eyebrow">REQUEST DETAIL</span><h2>${esc(r.title)}</h2>
- <div class="detail-grid">
- <div class="detail-cell"><small>Category</small><b>${esc(r.category)}</b></div>
- <div class="detail-cell"><small>Urgency</small><b>${r.urgency.toUpperCase()}</b></div>
- <div class="detail-cell"><small>Deadline</small><b>${formatDate(r.deadline)}</b></div>
- <div class="detail-cell"><small>Status</small><b>${esc(r.status)}</b></div>
- <div class="detail-cell"><small>Requester</small><b>${esc(r.requester)}</b></div>
- <div class="detail-cell"><small>AI Priority</small><b>${r.priority}/100</b></div></div>
- <div class="ai-box" style="margin-top:14px"><span class="ai-label">✦ AI ASSESSMENT</span><p>Priority dihitung dari deadline, kategori dan konteks request. Pada versi production, assessment ini akan menggunakan LLM API.</p></div>
- <div style="display:flex;justify-content:flex-end;margin-top:15px"><button class="secondary-btn" id="deleteRequest">Delete request</button></div>`;
- $("requestModal").classList.add("show");$("requestModal").setAttribute("aria-hidden","false");
- $("deleteRequest").onclick=()=>{if(confirm("Hapus request ini?")){const { error } = await supabaseClient
-  .from("requests")
-  .delete()
-  .eq("id", id);
 
-if (error) {
-  console.error(error);
-  alert("Request gagal dihapus.");
-  return;
-}
+  <!-- APP -->
 
-closeModal();
-await loadRequests();
-}
-function closeModal(){$("requestModal").classList.remove("show");$("requestModal").setAttribute("aria-hidden","true")}
+  <div class="app-shell">
 
-function analyze(){
- const title=$("title").value.trim(),brief=$("brief").value.trim(),deadline=$("deadline").value,channel=$("channel").value;
- const [urg,base]=deadline?urgencyFor(deadline):["normal",60];
- let completeness=0;if(title)completeness+=25;if(brief.length>80)completeness+=35;else if(brief)completeness+=20;if(deadline)completeness+=20;if(channel)completeness+=20;
- const missing=[];if(!title)missing.push("title");if(!brief)missing.push("brief");if(!deadline)missing.push("deadline");
- $("aiAnalysis").innerHTML=`<span class="ai-label">✦ AI ANALYSIS</span>
- <p><b>Category:</b> ${esc(categoryFor(channel))}</p>
- <p><b>Recommended urgency:</b> <span class="tag ${urg}">${urg.toUpperCase()}</span></p>
- <p><b>Brief completeness:</b> ${completeness}/100</p>
- <p>${missing.length?`⚠ Missing: ${missing.join(", ")}`:"✓ Informasi dasar sudah tersedia. Request siap masuk queue."}</p>`;
- return {urg,priority:Math.min(100,base+(brief.length>160?3:0)),completeness};
-}
+    <!-- SIDEBAR -->
 
-function renderAll(){renderDashboard();renderQueue();renderAnalytics()}
-function go(page){
- document.querySelectorAll(".page").forEach(p=>p.classList.remove("active-page"));
- const target=$(page);if(target)target.classList.add("active-page");
- document.querySelectorAll(".nav-link").forEach(a=>a.classList.toggle("active",a.dataset.page===page));
- if(page==="dashboard")renderDashboard();if(page==="requests")renderQueue();if(page==="analytics")renderAnalytics();
- window.scrollTo({top:0,behavior:"smooth"});
-}
-function route(){const page=location.hash.replace("#","")||"dashboard";go($(page)?page:"dashboard")}
+    <aside class="sidebar">
 
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>{location.hash=b.dataset.go}));
-document.querySelectorAll(".nav-link").forEach(a=>a.addEventListener("click",()=>{location.hash=a.dataset.page}));
-window.addEventListener("hashchange",route);
+      <div class="brand">
 
-$("queueFilters").addEventListener("click",e=>{if(!e.target.matches(".filter"))return;document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));e.target.classList.add("active");currentFilter=e.target.dataset.filter;renderQueue()});
-$("searchInput").addEventListener("input",renderQueue);
+        <div class="brand-mark">
 
-$("analyzeBtn").addEventListener("click",analyze);
-$("requestForm").addEventListener("submit", async e => {
+          <span id="sidebarLogoFallback">D</span>
 
-  e.preventDefault();
+          <img
+            id="sidebarLogo"
+            alt="Application logo"
+          >
 
-  const analysis = analyze();
+        </div>
 
-  const title =
-    $("title").value.trim() || "Untitled Request";
+        <div>
 
-  const brief =
-    $("brief").value.trim();
+          <strong id="brandTitle">
+            Visual<span>Ops</span> AI
+          </strong>
 
-  const requester =
-    $("requester").value.trim() || "Unknown";
+          <small id="brandTagline">
+            AI Request Center
+          </small>
 
-  const email =
-    $("requesterEmail")?.value.trim() || "";
+        </div>
 
-  const deadline =
-    $("deadline").value || null;
+      </div>
 
-  const category =
-    categoryFor($("channel").value);
 
-  const type =
-    $("channel").value;
+      <nav class="nav">
 
-  const requestData = {
-    title: title,
+        <a
+          href="#dashboard"
+          class="nav-link active"
+          data-page="dashboard"
+        >
+          ⌂
+          <span>Dashboard</span>
+        </a>
 
-    description: brief,
+        <a
+          href="#requests"
+          class="nav-link"
+          data-page="requests"
+        >
+          ▤
+          <span>Request Queue</span>
+        </a>
 
-    requester_name: requester,
-
-    requester_email: email,
-
-    category: category,
-
-    deadline: deadline,
-
-    urgency: analysis.urg,
-
-    priority: "P" + (
-      analysis.urg === "urgent"
-        ? "0"
-        : analysis.urg === "high"
-        ? "1"
-        : analysis.urg === "normal"
-        ? "2"
-        : "3"
-    ),
-
-    status: "New",
-
-    ai_summary: null,
-
-    ai_reasoning: null,
-
-    ai_estimated_hours: null
-  };
-
-  console.log("Mengirim request ke Supabase:", requestData);
-
-  const { data, error } = await supabaseClient
-    .from("requests")
-    .insert([requestData])
-    .select()
-    .single();
-
-  if (error) {
-
-    console.error("Supabase INSERT ERROR:", error);
-
-    alert(
-      "Request gagal disimpan ke server.\n\n" +
-      error.message
-    );
-
-    return;
-  }
-
-  console.log("Request berhasil disimpan:", data);
-
-  e.target.reset();
-
-  $("aiAnalysis").innerHTML =
-    "<span class='ai-label'>✦ AI ANALYSIS</span>" +
-    "<p>Request berhasil disimpan ke VisualOps AI.</p>";
-
-  await loadRequests();
-
-  location.hash = "requests";
-
-});
-
-$("closeModal").addEventListener("click",closeModal);$("requestModal").addEventListener("click",e=>{if(e.target.id==="requestModal")closeModal()});
-$("notificationBtn").addEventListener("click",()=>alert("Prototype: notification center akan dihubungkan ke backend pada versi production."));
-
-const DEFAULT_CATEGORIES=[
- "Social Media","Digital Ads","Packaging","Print","Branding","Photography","Video","Illustration","Presentation","Other"
-];
-
-function getSettings(){
- return JSON.parse(localStorage.getItem(SETTINGS_KEY)||"null")||{};
-}
-function applyLogo(logo){
- const img=$("logoPreview"), fallback=$("logoFallback");
- const shell=$("sidebarLogo").closest(".brand-logo-shell");
- const sidebarImg=$("sidebarLogo"), sidebarFallback=$("sidebarLogoFallback");
-
- if(logo){
-   img.src=logo;img.style.display="block";fallback.style.display="none";
-   sidebarImg.src=logo;sidebarFallback.style.display="none";
-   shell.classList.add("has-logo");
- }else{
-   img.removeAttribute("src");img.style.display="none";fallback.style.display="grid";
-   sidebarImg.removeAttribute("src");sidebarFallback.style.display="block";
-   shell.classList.remove("has-logo");
- }
-
- const oldFavicon=document.querySelector("link[data-designops-favicon]");
- if(oldFavicon)oldFavicon.remove();
- if(logo){
-   const link=document.createElement("link");
-   link.rel="icon";link.href=logo;link.dataset.designopsFavicon="true";
-   document.head.appendChild(link);
- }
-}
-function applySidebarSettings(s){
- const root=document.documentElement;
- root.style.setProperty("--sidebar-bg",s.sidebarBg||"#111111");
- root.style.setProperty("--sidebar-active",s.sidebarActive||"#242424");
- root.style.setProperty("--sidebar-text",s.sidebarText||"#969696");
- root.style.setProperty("--sidebar-hover",s.sidebarHover||"#1C1C1C");
- root.style.setProperty("--sidebar-width",(s.sidebarWidth||245)+"px");
- root.style.setProperty("--sidebar-bg-image",s.sidebarBackground?`url("${s.sidebarBackground}")`:"none");
- const preview=$("sidebarDesignPreview");
- if(preview){preview.style.backgroundColor=s.sidebarBg||"#111111";preview.style.backgroundImage=s.sidebarBackground?`url("${s.sidebarBackground}")`:"none";}
- const ids={sidebarBg:"sidebarBgColor",sidebarActive:"sidebarActiveColor",sidebarText:"sidebarTextColor",sidebarHover:"sidebarHoverColor"};
- Object.entries(ids).forEach(([key,id])=>{if($(id))$(id).value=s[key]||getComputedStyle(document.documentElement).getPropertyValue("--"+key.replace("sidebar","sidebar-")).trim()||"#111111"});
- if($("sidebarWidth")){$("sidebarWidth").value=s.sidebarWidth||245;$("sidebarWidthValue").textContent=(s.sidebarWidth||245)+" px";}
-}
-function loadSettings(){
- const s=getSettings();
- document.documentElement.style.setProperty("--primary",s.primary||"#111111");
- document.documentElement.style.setProperty("--accent",s.accent||"#B7D66A");
- document.documentElement.style.setProperty("--bg",s.background||"#F5F5F2");
- $("brandName").value=s.brand||"DesignOps AI";
- $("brandTagline").value=s.tagline||"AI Request Center";
- $("primaryColor").value=s.primary||"#111111";
- $("accentColor").value=s.accent||"#B7D66A";
- $("backgroundColor").value=s.background||"#F5F5F2";
- document.title=(s.brand||"DesignOps AI")+" — Request Center";
- const brandStrong=document.querySelector(".brand strong");
- if(brandStrong)brandStrong.innerHTML=esc(s.brand||"DesignOps AI").replace(/Ops/i,"<span>Ops</span>");
- const brandSmall=document.querySelector(".brand small");
- if(brandSmall)brandSmall.textContent=s.tagline||"AI Request Center";
- applyLogo(s.logo||"");
- renderCategorySettings();
- syncChannelOptions();
- applySidebarSettings(s);
-}
-function getCategories(){
- return JSON.parse(localStorage.getItem("designops_categories_v1")||"null")||DEFAULT_CATEGORIES;
-}
-function saveCategories(cats){localStorage.setItem("designops_categories_v1",JSON.stringify(cats))}
-function renderCategorySettings(){
- const cats=getCategories();
- $("categorySettings").innerHTML=cats.map((c,i)=>`<span class="category-chip">${esc(c)}<button type="button" data-cat-index="${i}" aria-label="Remove ${esc(c)}">×</button></span>`).join("");
-}
-    function syncChannelOptions(){
-  const select=$("channel");
-  if(!select)return;
-
-  const current=select.value;
-  const cats=getCategories();
-
-  const values={
-    "Social Media":"social_media",
-    "Digital Ads":"digital_ads",
-    "Packaging":"packaging",
-    "Print":"print",
-    "Branding":"branding",
-    "Photography":"photography",
-    "Video":"video",
-    "Illustration":"illustration",
-    "Presentation":"presentation",
-    "Other":"other"
-  };
-
-  select.innerHTML=cats.map(category=>{
-    const value=values[category]||category.toLowerCase().replace(/[^a-z0-9]+/g,"_");
-    return `<option value="${esc(value)}">${esc(category)}</option>`;
-  }).join("");
-
-  if([...select.options].some(o=>o.value===current)){
-    select.value=current;
-  }
-}
-$("logoInput").addEventListener("change",e=>{
- const file=e.target.files?.[0];if(!file)return;
- const reader=new FileReader();
- reader.onload=()=>{const s=getSettings();s.logo=reader.result;localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applyLogo(s.logo)};
- reader.readAsDataURL(file);
-});
-$("removeLogo").addEventListener("click",()=>{
- const s=getSettings();delete s.logo;localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applyLogo("");
- $("logoInput").value="";
-});
-$("saveSettings").addEventListener("click",()=>{
- const s={...getSettings(),
-   brand:$("brandName").value.trim()||"DesignOps AI",
-   tagline:$("brandTagline").value.trim()||"AI Request Center",
-   primary:$("primaryColor").value,
-   accent:$("accentColor").value,
-   background:$("backgroundColor").value,
-   sidebarBg:$("sidebarBgColor").value,
-   sidebarActive:$("sidebarActiveColor").value,
-   sidebarText:$("sidebarTextColor").value,
-   sidebarHover:$("sidebarHoverColor").value,
-   sidebarWidth:Number($("sidebarWidth").value)||245
- };
- localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));loadSettings();alert("Brand configuration tersimpan di browser ini.");
-});
-$("sidebarBgInput").addEventListener("change",e=>{
- const file=e.target.files?.[0];if(!file)return;
- const reader=new FileReader();reader.onload=()=>{const s=getSettings();s.sidebarBackground=reader.result;localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applySidebarSettings(s)};reader.readAsDataURL(file);
-});
-$("removeSidebarBg").addEventListener("click",()=>{const s=getSettings();delete s.sidebarBackground;localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applySidebarSettings(s);$("sidebarBgInput").value=""});
-["sidebarBgColor","sidebarActiveColor","sidebarTextColor","sidebarHoverColor","sidebarWidth"].forEach(id=>$(id).addEventListener("input",()=>{const s=getSettings();s.sidebarBg=$("sidebarBgColor").value;s.sidebarActive=$("sidebarActiveColor").value;s.sidebarText=$("sidebarTextColor").value;s.sidebarHover=$("sidebarHoverColor").value;s.sidebarWidth=Number($("sidebarWidth").value);applySidebarSettings(s)}));
-$("sidebarWidth").addEventListener("input",e=>$("sidebarWidthValue").textContent=e.target.value+" px");
-$("resetSidebar").addEventListener("click",()=>{const s=getSettings();delete s.sidebarBackground;s.sidebarBg="#111111";s.sidebarActive="#242424";s.sidebarText="#969696";s.sidebarHover="#1C1C1C";s.sidebarWidth=245;localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));loadSettings();});
-$("addCategory").addEventListener("click",()=>{
- const input=$("newCategory"),value=input.value.trim();if(!value)return;
- const cats=getCategories();if(!cats.some(c=>c.toLowerCase()===value.toLowerCase()))cats.push(value);
- saveCategories(cats);input.value="";renderCategorySettings();
-});
-$("newCategory").addEventListener("keydown",e=>{if(e.key==="Enter"){$("addCategory").click()}});
-$("categorySettings").addEventListener("click",e=>{
- const btn=e.target.closest("[data-cat-index]");if(!btn)return;
- const cats=getCategories();cats.splice(Number(btn.dataset.catIndex),1);saveCategories(cats);renderCategorySettings();
-});
-loadSettings();route();loadRequests();
-
-
-// Entrance loading screen + dynamic copyright.
-(function(){
-  const year = document.getElementById("copyrightYear");
-  if(year) year.textContent = new Date().getFullYear();
-
-  const loader = document.getElementById("appLoader");
-  const skip = document.getElementById("loaderSkip");
-
-  function closeLoader(){
-    if(!loader) return;
-    loader.classList.add("hide");
-    loader.style.animation = "none";
-    loader.style.opacity = "0";
-    loader.style.visibility = "hidden";
-    loader.style.pointerEvents = "none";
-  }
-
-  // Skip button works independently of the rest of the application.
-  if(skip) skip.addEventListener("click", closeLoader);
-
-  // Guaranteed fallback.
-  setTimeout(closeLoader, 5000);
-
-  // Logo on loader.
-  try{
-    const key = typeof SETTINGS_KEY !== "undefined" ? SETTINGS_KEY : "designops_settings_v1";
-    const settings = JSON.parse(localStorage.getItem(key) || "{}");
-    if(settings.logo){
-      const img=document.getElementById("loaderLogo");
-      const fallback=document.getElementById("loaderLogoFallback");
-      if(img && fallback){
-        img.src=settings.logo;
-        img.style.display="block";
-        fallback.style.display="none";
-      }
-    }
-  }catch(e){}
-})();
-</script>
-
-<footer class="app-footer">
-  <span>© <span id="copyrightYear"></span> Noir</span>
-  <span>DesignOps AI · Creative Operations</span>
-</footer>
+        <a
+          href="#new-request"
+          class="nav-link"
+          data-page="new-request"
+        >
+          ＋
+          <span>New Request</span>
+        </a>
+
+        <a
+          href="#analytics"
+          class="nav-link"
+          data-page="analytics"
+        >
+          ◒
+          <span>Analytics</span>
+        </a>
+
+        <a
+          href="#settings"
+          class="nav-link"
+          data-page="settings"
+        >
+          ⚙
+          <span>Settings</span>
+        </a>
+
+      </nav>
+
+
+      <div class="sidebar-footer">
+
+        <div class="status-dot"></div>
+
+        <div>
+          <b>System online</b>
+          <small>VisualOps AI</small>
+        </div>
+
+      </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+      <header class="topbar">
+
+        <div class="top-actions">
+
+          <button
+            class="icon-btn"
+            id="notificationBtn"
+          >
+            ♢
+          </button>
+
+          <div class="avatar">
+            N
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <!-- DASHBOARD -->
+
+      <section
+        id="dashboard"
+        class="page active-page"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              CREATIVE OPERATIONS
+            </span>
+
+            <h1>
+              Design Request Center
+            </h1>
+
+            <p>
+              Kelola seluruh request desain dalam satu tempat.
+            </p>
+
+          </div>
+
+          <button
+            class="primary-btn"
+            data-go="new-request"
+          >
+            ＋ New Request
+          </button>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <article class="stat-card">
+            <span>Open Requests</span>
+            <strong id="openCount">0</strong>
+            <small>Request aktif</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Urgent</span>
+            <strong id="urgentCount">0</strong>
+            <small>Perlu perhatian</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Waiting Approval</span>
+            <strong id="approvalCount">0</strong>
+            <small>Menunggu review</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Completed</span>
+            <strong id="completedCount">0</strong>
+            <small>Bulan ini</small>
+          </article>
+
+        </div>
+
+
+        <div class="content-grid">
+
+          <section class="panel">
+
+            <div class="panel-heading">
+
+              <div>
+
+                <h2>
+                  Priority Queue
+                </h2>
+
+                <p>
+                  Request yang paling membutuhkan perhatian.
+                </p>
+
+              </div>
+
+              <button
+                class="text-btn"
+                data-go="requests"
+              >
+                View all →
+              </button>
+
+            </div>
+
+            <div
+              id="priorityQueue"
+              class="request-list"
+            ></div>
+
+          </section>
+
+
+          <section class="panel">
+
+            <div class="panel-heading">
+
+              <div>
+
+                <h2>
+                  AI Workload Insight
+                </h2>
+
+                <p>
+                  Analisis sederhana berdasarkan queue saat ini.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="workload">
+
+              <div class="workload-number">
+
+                <strong id="workloadValue">
+                  0%
+                </strong>
+
+                <span>
+                  estimated workload
+                </span>
+
+              </div>
+
+              <div class="progress">
+                <i id="workloadBar"></i>
+              </div>
+
+            </div>
+
+
+            <div class="ai-box">
+
+              <span class="ai-label">
+                ✦ AI RECOMMENDATION
+              </span>
+
+              <p id="aiInsight">
+                Belum ada data.
+              </p>
+
+            </div>
+
+
+            <div class="workflow-mini">
+
+              <span>New</span>
+              <i>→</i>
+
+              <span>Production</span>
+              <i>→</i>
+
+              <span>Review</span>
+              <i>→</i>
+
+              <span>Done</span>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- REQUEST QUEUE -->
+
+      <section
+        id="requests"
+        class="page"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              WORK QUEUE
+            </span>
+
+            <h1>
+              Request Queue
+            </h1>
+
+            <p>
+              Semua request desain yang masuk.
+            </p>
+
+          </div>
+
+          <button
+            class="primary-btn"
+            data-go="new-request"
+          >
+            ＋ New Request
+          </button>
+
+        </div>
+
+
+        <section class="panel">
+
+          <div class="toolbar">
+
+            <div
+              class="filters"
+              id="queueFilters"
+            >
+
+              <button
+                class="filter active"
+                data-filter="all"
+              >
+                All
+              </button>
+
+              <button
+                class="filter"
+                data-filter="urgent"
+              >
+                Urgent
+              </button>
+
+              <button
+                class="filter"
+                data-filter="social_media"
+              >
+                Social Media
+              </button>
+
+              <button
+                class="filter"
+                data-filter="print"
+              >
+                Print
+              </button>
+
+              <button
+                class="filter"
+                data-filter="packaging"
+              >
+                Packaging
+              </button>
+
+            </div>
+
+
+            <input
+              id="searchInput"
+              class="search"
+              type="search"
+              placeholder="Search request..."
+            >
+
+          </div>
+
+
+          <div
+            id="fullQueue"
+            class="request-list"
+          ></div>
+
+        </section>
+
+      </section>
+
+
+      <!-- NEW REQUEST -->
+
+      <section
+        id="new-request"
+        class="page"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              INTAKE
+            </span>
+
+            <h1>
+              New Design Request
+            </h1>
+
+            <p>
+              Masukkan brief dan request akan disimpan ke database.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <section class="panel">
+
+          <form id="requestForm">
+
+            <div class="form-grid">
+
+              <label>
+                Request title
+
+                <input
+                  id="title"
+                  required
+                  placeholder="Contoh: Promo September Instagram Feed"
+                >
+              </label>
+
+
+              <label>
+                Requester
+
+                <input
+                  id="requester"
+                  placeholder="Marketing / Product / Other"
+                >
+              </label>
+
+
+              <label>
+                Requester email
+
+                <input
+                  id="requesterEmail"
+                  type="email"
+                  placeholder="email@company.com"
+                >
+              </label>
+
+
+              <label>
+                Deadline
+
+                <input
+                  id="deadline"
+                  type="date"
+                  required
+                >
+              </label>
+
+
+              <label>
+                Channel / Format
+
+                <select id="channel">
+
+                  <option value="social_media">
+                    Instagram Feed
+                  </option>
+
+                  <option value="social_media">
+                    Instagram Story
+                  </option>
+
+                  <option value="print">
+                    Print
+                  </option>
+
+                  <option value="packaging">
+                    Packaging
+                  </option>
+
+                  <option value="presentation">
+                    Presentation
+                  </option>
+
+                  <option value="other">
+                    Other
+                  </option>
+
+                </select>
+
+              </label>
+
+
+              <label class="full">
+
+                Brief
+
+                <textarea
+                  id="brief"
+                  required
+                  placeholder="Jelaskan tujuan, campaign, produk, pesan utama, ukuran, CTA, referensi, dan informasi penting lainnya."
+                ></textarea>
+
+              </label>
+
+            </div>
+
+
+            <div
+              class="ai-analysis"
+              id="aiAnalysis"
+            >
+
+              <span class="ai-label">
+                ✦ AI ANALYSIS
+              </span>
+
+              <p>
+                Isi brief lalu klik Analyze with AI.
+              </p>
+
+            </div>
+
+
+            <div class="form-actions">
+
+              <button
+                type="button"
+                class="secondary-btn"
+                data-go="dashboard"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                class="secondary-btn"
+                id="analyzeBtn"
+              >
+                Analyze
+              </button>
+
+              <button
+                type="submit"
+                class="primary-btn"
+              >
+                Add to Queue
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+      </section>
+
+
+      <!-- ANALYTICS -->
+
+      <section
+        id="analytics"
+        class="page"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              INSIGHTS
+            </span>
+
+            <h1>
+              Analytics
+            </h1>
+
+            <p>
+              Ringkasan workload dan request.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <article class="stat-card">
+            <span>Total Requests</span>
+            <strong id="totalRequests">0</strong>
+            <small>Database</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Avg. Priority</span>
+            <strong id="avgPriority">0</strong>
+            <small>AI score</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Social Media</span>
+            <strong id="socialCount">0</strong>
+            <small>Request</small>
+          </article>
+
+          <article class="stat-card">
+            <span>Packaging</span>
+            <strong id="packagingCount">0</strong>
+            <small>Request</small>
+          </article>
+
+        </div>
+
+
+        <section class="panel">
+
+          <div class="panel-heading">
+
+            <div>
+
+              <h2>
+                Category Distribution
+              </h2>
+
+              <p>
+                Distribusi request berdasarkan kategori.
+              </p>
+
+            </div>
+
+          </div>
+
+          <div id="categoryBars"></div>
+
+        </section>
+
+      </section>
+
+
+      <!-- SETTINGS -->
+
+      <section
+        id="settings"
+        class="page"
+      >
+
+        <div class="page-heading">
+
+          <div>
+
+            <span class="eyebrow">
+              CONFIGURATION
+            </span>
+
+            <h1>
+              Settings
+            </h1>
+
+            <p>
+              Kelola identitas VisualOps AI.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+          <section class="panel">
+
+            <h2>
+              Brand Identity
+            </h2>
+
+
+            <div class="logo-setting">
+
+              <div class="logo-preview">
+
+                <span id="logoFallback">
+                  D
+                </span>
+
+                <img
+                  id="logoPreview"
+                  alt="Logo preview"
+                >
+
+              </div>
+
+
+              <div>
+
+                <b>
+                  Application Logo
+                </b>
+
+                <p>
+                  Logo tersimpan di browser ini.
+                </p>
+
+                <label class="upload-btn">
+
+                  Upload Logo
+
+                  <input
+                    id="logoInput"
+                    type="file"
+                    accept="image/png,image/jpeg,image/svg+xml"
+                    hidden
+                  >
+
+                </label>
+
+                <button
+                  id="removeLogo"
+                  type="button"
+                  class="secondary-btn"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <label>
+
+              Brand name
+
+              <input
+                id="brandName"
+                value="VisualOps AI"
+              >
+
+            </label>
+
+
+            <label>
+
+              Tagline
+
+              <input
+                id="brandTagline"
+                value="AI Request Center"
+              >
+
+            </label>
+
+
+            <div class="form-grid">
+
+              <label>
+
+                Primary color
+
+                <input
+                  id="primaryColor"
+                  type="color"
+                  value="#111111"
+                >
+
+              </label>
+
+
+              <label>
+
+                Accent color
+
+                <input
+                  id="accentColor"
+                  type="color"
+                  value="#B7D66A"
+                >
+
+              </label>
+
+            </div>
+
+
+            <button
+              id="saveSettings"
+              class="primary-btn"
+              type="button"
+            >
+              Save Appearance
+            </button>
+
+          </section>
+
+
+          <section class="panel">
+
+            <h2>
+              Urgency Rules
+            </h2>
+
+            <p>
+              Aturan prioritas berdasarkan deadline.
+            </p>
+
+
+            <div class="rule">
+
+              <span>
+                <b>Critical</b>
+                <small>Deadline ≤ 24 jam</small>
+              </span>
+
+              <em>P0</em>
+
+            </div>
+
+
+            <div class="rule">
+
+              <span>
+                <b>High</b>
+                <small>Deadline 1–3 hari</small>
+              </span>
+
+              <em>P1</em>
+
+            </div>
+
+
+            <div class="rule">
+
+              <span>
+                <b>Normal</b>
+                <small>Deadline 4–7 hari</small>
+              </span>
+
+              <em>P2</em>
+
+            </div>
+
+
+            <div class="rule">
+
+              <span>
+                <b>Low</b>
+                <small>Deadline &gt; 7 hari</small>
+              </span>
+
+              <em>P3</em>
+
+            </div>
+
+          </section>
+
+
+          <section class="panel">
+
+            <h2>
+              Sidebar Appearance
+            </h2>
+
+            <p>
+              Gunakan artwork Photoshop sebagai background sidebar.
+            </p>
+
+
+            <div
+              id="sidebarPreview"
+              class="sidebar-preview"
+            >
+              Sidebar Preview
+            </div>
+
+
+            <label class="upload-btn">
+
+              Upload Sidebar Design
+
+              <input
+                id="sidebarBgInput"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                hidden
+              >
+
+            </label>
+
+
+            <br><br>
+
+
+            <button
+              id="removeSidebarBg"
+              type="button"
+              class="secondary-btn"
+            >
+              Remove Background
+            </button>
+
+
+            <div class="form-grid">
+
+              <label>
+
+                Sidebar background
+
+                <input
+                  id="sidebarBgColor"
+                  type="color"
+                  value="#111111"
+                >
+
+              </label>
+
+
+              <label>
+
+                Active menu
+
+                <input
+                  id="sidebarActiveColor"
+                  type="color"
+                  value="#242424"
+                >
+
+              </label>
+
+            </div>
+
+
+            <label>
+
+              Sidebar width
+
+              <span class="range-row">
+
+                <input
+                  id="sidebarWidth"
+                  type="range"
+                  min="210"
+                  max="360"
+                  value="245"
+                >
+
+                <output id="sidebarWidthValue">
+                  245 px
+                </output>
+
+              </span>
+
+            </label>
+
+
+            <button
+              id="resetSidebar"
+              type="button"
+              class="secondary-btn"
+            >
+              Reset Sidebar
+            </button>
+
+          </section>
+
+
+          <section class="panel">
+
+            <h2>
+              Workflow
+            </h2>
+
+            <p>
+              Status standar request.
+            </p>
+
+            <div class="workflow-mini">
+
+              <span>New</span>
+              <i>→</i>
+
+              <span>Production</span>
+              <i>→</i>
+
+              <span>Review</span>
+              <i>→</i>
+
+              <span>Revision</span>
+              <i>→</i>
+
+              <span>Approved</span>
+              <i>→</i>
+
+              <span>Done</span>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- MODAL -->
+
+  <div
+    class="modal"
+    id="requestModal"
+    aria-hidden="true"
+  >
+
+    <div class="modal-card">
+
+      <button
+        class="modal-close"
+        id="closeModal"
+      >
+        ×
+      </button>
+
+      <div id="modalContent"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- FOOTER -->
+
+  <footer class="app-footer">
+
+    <span>
+      © <span id="copyrightYear"></span> Noir
+    </span>
+
+    <span>
+      VisualOps AI · Creative Operations
+    </span>
+
+  </footer>
+
+
+  <!-- APPLICATION JAVASCRIPT -->
+
+  <script src="app.js"></script>
 
 </body>
 </html>

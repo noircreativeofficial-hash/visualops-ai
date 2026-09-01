@@ -280,22 +280,31 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("VisualOps AI → Supabase client initialized");
-const STORAGE_KEY="designops_requests_v1";
-const SETTINGS_KEY="designops_settings_v1";
+const SETTINGS_KEY = "designops_settings_v1";
 
-const seedRequests=[
- {id:1,title:"Promo September — Instagram Feed",category:"Social Media",type:"social_media",urgency:"urgent",priority:96,deadline:"2026-08-31",status:"In Progress",requester:"Marketing",brief:"Promo September untuk Instagram Feed.",created:"2026-08-30"},
- {id:2,title:"School Cooking Class Poster",category:"Social Media",type:"social_media",urgency:"high",priority:82,deadline:"2026-09-02",status:"New",requester:"Marketing",brief:"Poster untuk campaign cooking class.",created:"2026-08-30"},
- {id:3,title:"Membership Card Update",category:"Print",type:"print",urgency:"normal",priority:71,deadline:"2026-09-07",status:"Waiting Approval",requester:"Marketing",brief:"Update membership card.",created:"2026-08-29"},
- {id:4,title:"New Kebab Packaging Artwork",category:"Packaging",type:"packaging",urgency:"high",priority:89,deadline:"2026-09-03",status:"Revision",requester:"Product",brief:"Artwork packaging baru.",created:"2026-08-28"},
- {id:5,title:"October Anniversary Key Visual",category:"Social Media",type:"social_media",urgency:"normal",priority:64,deadline:"2026-09-15",status:"New",requester:"Marketing",brief:"Key visual anniversary.",created:"2026-08-27"}
-];
+let requests = [];
 
-let requests=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null")||seedRequests;
-let currentFilter="all";
+let currentFilter = "all";
+
+const $ = id => document.getElementById(id);
 
 const $=id=>document.getElementById(id);
-const save=()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(requests));
+    async function loadRequests() {
+  const { data, error } = await supabaseClient
+    .from("requests")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Gagal mengambil requests:", error);
+    alert("Gagal mengambil data request dari server.");
+    return;
+  }
+
+  requests = data || [];
+
+  renderAll();
+}
 
 function daysUntil(date){return Math.ceil((new Date(date+"T23:59:59")-new Date())/86400000)}
 function urgencyFor(date){
@@ -365,7 +374,19 @@ function openDetail(id){
  <div class="ai-box" style="margin-top:14px"><span class="ai-label">✦ AI ASSESSMENT</span><p>Priority dihitung dari deadline, kategori dan konteks request. Pada versi production, assessment ini akan menggunakan LLM API.</p></div>
  <div style="display:flex;justify-content:flex-end;margin-top:15px"><button class="secondary-btn" id="deleteRequest">Delete request</button></div>`;
  $("requestModal").classList.add("show");$("requestModal").setAttribute("aria-hidden","false");
- $("deleteRequest").onclick=()=>{if(confirm("Hapus request ini?")){requests=requests.filter(x=>x.id!==id);save();closeModal();renderAll()}};
+ $("deleteRequest").onclick=()=>{if(confirm("Hapus request ini?")){const { error } = await supabaseClient
+  .from("requests")
+  .delete()
+  .eq("id", id);
+
+if (error) {
+  console.error(error);
+  alert("Request gagal dihapus.");
+  return;
+}
+
+closeModal();
+await loadRequests();
 }
 function closeModal(){$("requestModal").classList.remove("show");$("requestModal").setAttribute("aria-hidden","true")}
 
@@ -400,9 +421,99 @@ $("queueFilters").addEventListener("click",e=>{if(!e.target.matches(".filter"))r
 $("searchInput").addEventListener("input",renderQueue);
 
 $("analyzeBtn").addEventListener("click",analyze);
-$("requestForm").addEventListener("submit",e=>{
- e.preventDefault();const analysis=analyze();const r={id:Date.now(),title:$("title").value.trim()||"Untitled Request",category:categoryFor($("channel").value),type:$("channel").value,urgency:analysis.urg,priority:analysis.priority,deadline:$("deadline").value,status:"New",requester:$("requester").value.trim()||"Unknown",brief:$("brief").value.trim(),created:new Date().toISOString()};
- requests.unshift(r);save();e.target.reset();$("aiAnalysis").innerHTML="<span class='ai-label'>✦ AI ANALYSIS</span><p>Request berhasil dimasukkan ke queue.</p>";renderAll();location.hash="requests";
+$("requestForm").addEventListener("submit", async e => {
+
+  e.preventDefault();
+
+  const analysis = analyze();
+
+  const title =
+    $("title").value.trim() || "Untitled Request";
+
+  const brief =
+    $("brief").value.trim();
+
+  const requester =
+    $("requester").value.trim() || "Unknown";
+
+  const email =
+    $("requesterEmail")?.value.trim() || "";
+
+  const deadline =
+    $("deadline").value || null;
+
+  const category =
+    categoryFor($("channel").value);
+
+  const type =
+    $("channel").value;
+
+  const requestData = {
+    title: title,
+
+    description: brief,
+
+    requester_name: requester,
+
+    requester_email: email,
+
+    category: category,
+
+    deadline: deadline,
+
+    urgency: analysis.urg,
+
+    priority: "P" + (
+      analysis.urg === "urgent"
+        ? "0"
+        : analysis.urg === "high"
+        ? "1"
+        : analysis.urg === "normal"
+        ? "2"
+        : "3"
+    ),
+
+    status: "New",
+
+    ai_summary: null,
+
+    ai_reasoning: null,
+
+    ai_estimated_hours: null
+  };
+
+  console.log("Mengirim request ke Supabase:", requestData);
+
+  const { data, error } = await supabaseClient
+    .from("requests")
+    .insert([requestData])
+    .select()
+    .single();
+
+  if (error) {
+
+    console.error("Supabase INSERT ERROR:", error);
+
+    alert(
+      "Request gagal disimpan ke server.\n\n" +
+      error.message
+    );
+
+    return;
+  }
+
+  console.log("Request berhasil disimpan:", data);
+
+  e.target.reset();
+
+  $("aiAnalysis").innerHTML =
+    "<span class='ai-label'>✦ AI ANALYSIS</span>" +
+    "<p>Request berhasil disimpan ke VisualOps AI.</p>";
+
+  await loadRequests();
+
+  location.hash = "requests";
+
 });
 
 $("closeModal").addEventListener("click",closeModal);$("requestModal").addEventListener("click",e=>{if(e.target.id==="requestModal")closeModal()});
@@ -552,7 +663,7 @@ $("categorySettings").addEventListener("click",e=>{
  const btn=e.target.closest("[data-cat-index]");if(!btn)return;
  const cats=getCategories();cats.splice(Number(btn.dataset.catIndex),1);saveCategories(cats);renderCategorySettings();
 });
-loadSettings();renderAll();route();
+loadSettings();route();loadRequests();
 
 
 // Entrance loading screen + dynamic copyright.
